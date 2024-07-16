@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="brokerBtn" href="javascript:void(0);"  >
+      test broker
+    </button>
+    {{template "page1"}} 
+    <br></br>
+     {{template "page2"}} 
+    <br></br>
+    {{template "page3"}} 
+    <br></br>
+
+    {{define "js"}}
+
+    <script>
+      var testButton = document.getElementById("brokerBtn")
+      var output =  document.getElementById("output")
+      var payload = document.getElementById("payload")
+      var received = document.getElementById("received")
+      testButton.addEventListener("click", function(){
+        const body= {
+          method: 'POST',
+          Headers: {"Content-Type": 'application/json'}                    
+        }
+
+        testButton.innerText = "testing"
+  
+        fetch("http:\/\/localhost:80", body)
+        .then((response)=> {
+          console.log(response)
+          return response.json()          
+        })
+        .then((data)=>{
+          payload.innerHTML = "empty post request"
+          received.innerHTML = JSON.stringify(data, undefined, 4)
+          if (data.error){
+            console.log(data.error)
+            console.log(data)
+          }else{
+            console.log(data)
+            output.innerHTML += `<br> <strong>Response from the server </strong>: ${data.message}` 
+          }
+        }).catch((err)=> {
+          console.log(err)
+            output.innerHTML = `<br> <h1> Error: </h1> ${err}`
+        })
+      })     
+    </script>
+
+    {{end}}
+
+    {{template "js"}}
+  </body>
+</html>

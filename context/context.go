@@ -33,7 +33,7 @@ func main() {
 	webServer := sampleOperation(ctx, "webServer", 500)
 
 	microServices := sampleOperation(ctx, "microServices", 700)
-	database := sampleOperation(ctx, "databaese", 800)
+	database := sampleOperation(ctx, "database", 800)
 
 Mainloop:
 	for {

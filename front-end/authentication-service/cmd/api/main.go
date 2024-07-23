@@ -1,6 +1,10 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"authentication/data"
+)
 
 const port = "8080"
 

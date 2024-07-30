@@ -69,13 +69,31 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
 	// account := NewAccount("test", "this")
 
+	accounts, err := s.store.getAccounts()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(accounts)
+
 	vars := mux.Vars(r)
 
 	return writeJSON(w, http.StatusAccepted, vars)
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	request := new(CreateAccountRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(request); err != nil {
+		return err
+	}
+
+	account := NewAccount(request.FirstName, request.LastName)
+
+	if err := s.store.createAccount(account); err != nil {
+		return err
+	}
+	return writeJSON(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {

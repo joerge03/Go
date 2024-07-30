@@ -7,8 +7,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Printf("%+v \n ", store)
+	err = store.init()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	newServer := NewAPIServer(":8082", store)
 	newServer.Run()

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -46,7 +47,7 @@ func (s *APIServer) Run() {
 
 	log.Println("running on port: ", s.listAddr)
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleAccount))
+	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleGetAccountById))
 	err := http.ListenAndServe(s.listAddr, router)
 	if err != nil {
 		log.Println(err)
@@ -56,17 +57,34 @@ func (s *APIServer) Run() {
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "GET":
-		return s.handleGetAccount(w, r)
+		return s.handleGetAccounts(w, r)
 	case "POST":
 		return s.handleCreateAccount(w, r)
 	case "PUT":
 		return s.handleTransfer(w, r)
 	}
-
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
+func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request) error {
+	query := mux.Vars(r)
+
+	// log.Println(id)
+
+	id, err := strconv.Atoi(query["id"])
+	if err != nil {
+		return err
+	}
+
+	account, err := s.store.getAccountByID(id)
+	if err != nil {
+		return err
+	}
+
+	return writeJSON(w, http.StatusAccepted, account)
+}
+
+func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) error {
 	// account := NewAccount("test", "this")
 
 	accounts, err := s.store.getAccounts()
@@ -74,11 +92,14 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	fmt.Println(accounts)
+	for _, account := range accounts {
+		fmt.Println(account)
+	}
 
-	vars := mux.Vars(r)
+	// mux.vars is used to get ID in the queries
+	// vars := mux.Vars(r)
 
-	return writeJSON(w, http.StatusAccepted, vars)
+	return writeJSON(w, http.StatusAccepted, accounts)
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {

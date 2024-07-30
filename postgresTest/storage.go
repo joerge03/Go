@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -86,30 +85,48 @@ func (p *PostgresStore) updateAccount(account *Account) error {
 }
 
 func (p *PostgresStore) getAccountByID(id int) (*Account, error) {
-	return nil, nil
+	row, err := p.db.Query("SELECT * FROM account WHERE ID = $1", id)
+	if err != nil {
+		return nil, err
+	}
+
+	account, err := scanIntoAccount(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return account[0], nil
 }
 
 func (p *PostgresStore) getAccounts() ([]*Account, error) {
-	accounts := []*Account{}
-
 	row, err := p.db.Query("select * from account")
 	if err != nil {
 		return nil, err
 	}
 
-	account := new(Account)
-	for row.Next() {
-		err := row.Scan(&account.ID, &account.FirstName, &account.LastName, &account.Number, &account.Balance, &account.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
+	accounts, err := scanIntoAccount(row)
+	if err != nil {
+		return nil, err
 	}
-
-	fmt.Printf("%+v test \n ", account)
 
 	return accounts, nil
 }
 
 func (p *PostgresStore) deleteAccount(id int) error {
 	return nil
+}
+
+func scanIntoAccount(rows *sql.Rows) ([]*Account, error) {
+	account := []*Account{}
+
+	for rows.Next() {
+		acc := new(Account)
+		if err := rows.Scan(&acc.ID, &acc.FirstName, &acc.LastName, &acc.Number, &acc.Balance, &acc.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		account = append(account, acc)
+	}
+
+	return account, nil
 }

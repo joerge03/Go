@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -89,12 +90,12 @@ func (p *PostgresStore) getAccountByID(id int) (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	account, err := scanIntoAccount(row)
 	if err != nil {
 		return nil, err
+	} else if len(account) == 0 {
+		return nil, fmt.Errorf("account %v not found", id)
 	}
-
 	return account[0], nil
 }
 

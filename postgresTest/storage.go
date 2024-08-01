@@ -46,7 +46,7 @@ func (s *PostgresStore) init() error {
 
 func (s *PostgresStore) createAccountTable() error {
 	query := `create table if not exists account (
-	id serial primary key,
+	ID serial primary key,
 	firstName varchar(50),
 	lastName varchar(50),
 	number serial,
@@ -114,6 +114,10 @@ func (p *PostgresStore) getAccounts() ([]*Account, error) {
 }
 
 func (p *PostgresStore) deleteAccount(id int) error {
+	_, err := p.db.Query(`delete from account where ID = $1`, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -47,7 +47,7 @@ func (s *APIServer) Run() {
 
 	log.Println("running on port: ", s.listAddr)
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleGetAccountById))
+	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleAccountById))
 	err := http.ListenAndServe(s.listAddr, router)
 	if err != nil {
 		log.Println(err)
@@ -66,12 +66,18 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
+func (s *APIServer) handleAccountById(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "GET":
+		return s.handleGetAccountById(w, r)
+	case "DELETE":
+		return s.handleDeleteAccount(w, r)
+	}
+	return fmt.Errorf("method not allowed %s", r.Method)
+}
+
 func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request) error {
-	query := mux.Vars(r)
-
-	// log.Println(id)
-
-	id, err := strconv.Atoi(query["id"])
+	id, err := getAccountID(r)
 	if err != nil {
 		return err
 	}
@@ -85,8 +91,6 @@ func (s *APIServer) handleGetAccountById(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) error {
-	// account := NewAccount("test", "this")
-
 	accounts, err := s.store.getAccounts()
 	if err != nil {
 		return err
@@ -95,9 +99,6 @@ func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) er
 	for _, account := range accounts {
 		fmt.Println(account)
 	}
-
-	// mux.vars is used to get ID in the queries
-	// vars := mux.Vars(r)
 
 	return writeJSON(w, http.StatusAccepted, accounts)
 }
@@ -114,13 +115,45 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 	if err := s.store.createAccount(account); err != nil {
 		return err
 	}
+
+	fmt.Println(account, "accountasfasdfasdfkjhasdfkj")
 	return writeJSON(w, http.StatusOK, account)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
+	id, err := getAccountID(r)
+	if err != nil {
+		return err
+	}
+
+	if err := s.store.deleteAccount(id); err != nil {
+		return err
+	}
+
+	err = writeJSON(w, http.StatusAccepted, map[string]int{"deleted": id})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *APIServer) handleTransfer(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	transfer := new(TransferRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(transfer); err != nil {
+		return err
+	}
+
+	defer r.Body.Close()
+	return writeJSON(w, http.StatusOK, transfer)
+}
+
+func getAccountID(r *http.Request) (int, error) {
+	queries := mux.Vars(r)
+
+	id, err := strconv.Atoi(queries["id"])
+	if err != nil {
+		return 0, fmt.Errorf("no account with the id of %v", id)
+	}
+	return id, nil
 }

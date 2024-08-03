@@ -46,7 +46,7 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	log.Println("running on port: ", s.listAddr)
-	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
+	router.HandleFunc("/account", withJWTAuth(makeHTTPHandleFunc(s.handleAccount)))
 	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleAccountById))
 	err := http.ListenAndServe(s.listAddr, router)
 	if err != nil {
@@ -94,10 +94,6 @@ func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) er
 	accounts, err := s.store.getAccounts()
 	if err != nil {
 		return err
-	}
-
-	for _, account := range accounts {
-		fmt.Println(account)
 	}
 
 	return writeJSON(w, http.StatusAccepted, accounts)

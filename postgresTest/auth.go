@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
 )
@@ -25,6 +26,17 @@ func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 
 		handlerFunc(w, r)
 	}
+}
+
+func createJWT() (string, error) {
+	secret := os.Getenv("JWT_SECRET")
+	// Create a new token object, specifying signing method and the claims
+	// you would like it to contain.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  "bar",
+		"ttl": time.Now().Add(time.Hour * 3).Unix(),
+	}) // Sign and get the complete encoded token as a string using the secret
+	return token.SignedString(secret)
 }
 
 func validateJWT(userToken string) (*jwt.Token, error) {

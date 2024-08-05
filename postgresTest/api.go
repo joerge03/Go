@@ -112,6 +112,13 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
+	token, err := createJWT(account)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("token %v", token)
+
 	fmt.Println(account, "accountasfasdfasdfkjhasdfkj")
 	return writeJSON(w, http.StatusOK, account)
 }

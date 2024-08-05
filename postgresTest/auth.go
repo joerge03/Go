@@ -28,15 +28,15 @@ func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func createJWT() (string, error) {
+func createJWT(account *Account) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	// Create a new token object, specifying signing method and the claims
 	// you would like it to contain.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  "bar",
-		"ttl": time.Now().Add(time.Hour * 3).Unix(),
+		"ttl":           time.Now().Add(time.Hour * 3).Unix(),
+		"accountNumber": account.Number,
 	}) // Sign and get the complete encoded token as a string using the secret
-	return token.SignedString(secret)
+	return token.SignedString([]byte(secret))
 }
 
 func validateJWT(userToken string) (*jwt.Token, error) {

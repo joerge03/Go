@@ -28,8 +28,11 @@ func writeJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
+	fmt.Println("testasdfsfasss")
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
+			fmt.Println("testasdfsfa", r)
+
 			writeJSON(w, http.StatusBadRequest, ApiError{Err: err.Error()})
 		}
 	}
@@ -46,7 +49,7 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	log.Println("running on port: ", s.listAddr)
-	router.HandleFunc("/account", withJWTAuth(makeHTTPHandleFunc(s.handleAccount)))
+	router.HandleFunc("/account", makeHTTPHandleFunc((s.handleAccount)))
 	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleAccountById))
 	err := http.ListenAndServe(s.listAddr, router)
 	if err != nil {
@@ -57,13 +60,13 @@ func (s *APIServer) Run() {
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "GET":
-		return s.handleGetAccounts(w, r)
+		return withJWTAuth(w, r, s.handleGetAccounts)
 	case "POST":
 		return s.handleCreateAccount(w, r)
 	case "PUT":
-		return s.handleTransfer(w, r)
+		withJWTAuth(w, r, s.handleTransfer)
 	}
-	return fmt.Errorf("method not allowed %s", r.Method)
+	return fmt.Errorf("invalid method")
 }
 
 func (s *APIServer) handleAccountById(w http.ResponseWriter, r *http.Request) error {
@@ -100,6 +103,7 @@ func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
+	fmt.Println("run creataeasdasd")
 	request := new(CreateAccountRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(request); err != nil {
@@ -117,9 +121,7 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	fmt.Printf("token %v", token)
-
-	fmt.Println(account, "accountasfasdfasdfkjhasdfkj")
+	fmt.Printf("token %v \n", token)
 	return writeJSON(w, http.StatusOK, account)
 }
 

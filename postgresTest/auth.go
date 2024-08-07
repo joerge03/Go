@@ -10,26 +10,25 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-func withJWTAuth(handlerFunc http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("running middleware")
-		tokenString := r.Header.Get("x-jwt-token")
+var secret = os.Getenv("JWT_SECRET")
 
-		_, err := validateJWT(tokenString)
-		if err != nil {
-			// fmt.Println(err, "err")
-			writeJSON(w, http.StatusUnauthorized, ApiError{Err: "Token provided is invalid"})
-			return
-		}
+func withJWTAuth(w http.ResponseWriter, r *http.Request, handlerFunc apiFunc) error {
+	log.Println("running middleware")
+	tokenString := r.Header.Get("x-jwt-token")
 
-		// fmt.Println("token ", (*token).Header)
-
-		handlerFunc(w, r)
+	token, err := validateJWT(tokenString)
+	if err != nil {
+		return fmt.Errorf("token provided is invalid")
 	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	fmt.Println(claims, "claims")
+	return handlerFunc(w, r)
 }
 
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50TnVtYmVyIjo0NjQwLCJ0dGwiOjE3MjI5NDcwOTl9.Yxe-LJ48rKVmASmN5duTTx3TkCsw8fMbB7apvuA_p4A
+
 func createJWT(account *Account) (string, error) {
-	secret := os.Getenv("JWT_SECRET")
 	// Create a new token object, specifying signing method and the claims
 	// you would like it to contain.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -40,12 +39,10 @@ func createJWT(account *Account) (string, error) {
 }
 
 func validateJWT(userToken string) (*jwt.Token, error) {
-	secret := os.Getenv("JWT_SECRET")
-
 	token, err := jwt.Parse(userToken, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")

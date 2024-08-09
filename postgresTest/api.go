@@ -28,10 +28,10 @@ func writeJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
-	fmt.Println("testasdfsfasss")
+	// fmt.Println("testasdfsfasss")
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			fmt.Println("testasdfsfa", r)
+			// fmt.Println("testasdfsfa", r)
 
 			writeJSON(w, http.StatusBadRequest, ApiError{Err: err.Error()})
 		}
@@ -47,9 +47,7 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
-
-	log.Println("running on port: ", s.listAddr)
-	router.HandleFunc("/account", makeHTTPHandleFunc((s.handleAccount)))
+	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
 	router.HandleFunc("/account/{id}", makeHTTPHandleFunc(s.handleAccountById))
 	err := http.ListenAndServe(s.listAddr, router)
 	if err != nil {
@@ -103,7 +101,7 @@ func (s *APIServer) handleGetAccounts(w http.ResponseWriter, r *http.Request) er
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println("run creataeasdasd")
+	// fmt.Println("run creataeasdasd")
 	request := new(CreateAccountRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(request); err != nil {

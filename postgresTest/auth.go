@@ -27,23 +27,24 @@ func withJWTAuth(w http.ResponseWriter, r *http.Request, s Storage, handlerFunc 
 		return PermissionDenied(w)
 	}
 	claims := token.Claims.(jwt.MapClaims)
+	var formattedAccountNumber int
 
 	queries := mux.Vars(r)
-	accNumber, ok := queries["accountNumber"]
+	accountNumber, ok := queries["accountNumber"]
+	account := new(Account)
 
-	fmt.Println(accNumber)
+	if ok {
+		formattedAccountNumber, err = strconv.Atoi(accountNumber)
+		if err != nil {
+			return err
+		}
 
-	formattedAccountNumber, err := strconv.Atoi(accNumber)
-	if err != nil {
-		return err
+		account, err = s.getAccountByID(formattedAccountNumber)
+		if err != nil {
+			return err
+		}
 	}
 
-	account, err := s.getAccountByID(formattedAccountNumber)
-	if err != nil {
-		return err
-	}
-
-	// fmt.Println("print", ok, claims["accountNumber"])
 	if ok && claims["accountNumber"] != account.Number {
 		return PermissionDenied(w)
 	}
@@ -83,12 +84,12 @@ func validateJWT(userToken string) (*jwt.Token, error) {
 		return token, err
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		fmt.Println(claims["id"], claims["ttl"])
-		fmt.Println("test claims ", claims)
-	} else {
-		fmt.Println(err, "errasdfasdfsaf")
-	}
+	// if claims, ok := token.Claims.(jwt.MapClaims); ok {
+	// 	// fmt.Println(claims["id"], claims["ttl"])
+	// 	// fmt.Println("test claims ", claims)
+	// } else {
+	// 	fmt.Println(err, "errasdfasdfsaf")
+	// }
 
 	return token, nil
 }

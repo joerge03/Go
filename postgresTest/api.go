@@ -60,11 +60,11 @@ func (s *APIServer) Run() {
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "GET":
-		return withJWTAuth(w, r, s.handleGetAccounts)
+		return withJWTAuth(w, r, s.store, s.handleGetAccounts)
 	case "POST":
 		return s.handleCreateAccount(w, r)
 	case "PUT":
-		withJWTAuth(w, r, s.handleTransfer)
+		withJWTAuth(w, r, s.store, s.handleTransfer)
 	}
 	return fmt.Errorf("invalid method")
 }
@@ -72,7 +72,7 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 func (s *APIServer) handleAccountById(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "GET":
-		return s.handleGetAccountById(w, r)
+		return withJWTAuth(w, r, s.store, s.handleGetAccountById)
 	case "DELETE":
 		return s.handleDeleteAccount(w, r)
 	}

@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func print(texts ...interface{}, text ...interface{}) {
+func print(texts string, text ...interface{}) {
 	fmt.Println()
 	fmt.Println(text...)
 	fmt.Println()

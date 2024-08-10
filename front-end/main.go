@@ -16,11 +16,11 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	test := make(map[string][]string, 5)
-	test["Te"] = []string{"Test"}
-	test["Tesdf"] = []string{"Testasdf", "asdfasdfsaf"}
-	fmt.Println(test["Te"])
-	// fmt.Println(test)
+	// test := make(map[string][]string, 5)
+	// test["Te"] = []string{"Test"}
+	// test["Tesdf"] = []string{"Testasdf", "asdfasdfsaf"}
+	// fmt.Println(test["Te"])
+	// // fmt.Println(test)
 	Template, err = template.ParseGlob("test/pages/*.html")
 	if err != nil {
 		fmt.Println(err)

@@ -14,7 +14,6 @@ func sampleOperation(ctx context.Context, str string, delay time.Duration) <-cha
 			select {
 			case <-time.After(delay * time.Millisecond):
 				out <- fmt.Sprintf("message: %v", str)
-				return
 			case <-ctx.Done():
 				out <- fmt.Sprintf("aborted %v", str)
 				return
@@ -33,7 +32,13 @@ func main() {
 	webServer := sampleOperation(ctx, "webServer", 500)
 
 	microServices := sampleOperation(ctx, "microServices", 700)
-	database := sampleOperation(ctx, "databaese", 800)
+	database := sampleOperation(ctx, "database", 800)
+
+	go func() {
+		time.Sleep(900 * time.Millisecond)
+		cancel()
+		fmt.Println("testing")
+	}()
 
 Mainloop:
 	for {
@@ -42,11 +47,13 @@ Mainloop:
 			fmt.Println(test)
 		case test := <-microServices:
 			fmt.Println(test, "canceled")
-			cancel()
-			break Mainloop
 		case test := <-database:
 			fmt.Println(test)
 			fmt.Println(<-database)
+		case <-ctx.Done():
+			fmt.Println("test")
+			cancel()
+			break Mainloop
 
 			// case test := <-database:
 			// 	fmt.Println(test)

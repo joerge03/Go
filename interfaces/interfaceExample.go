@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-type   interface {
+type FirstInterface interface {
 	Function1()
 	Function2(x int) int
 }

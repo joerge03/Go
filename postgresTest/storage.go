@@ -70,14 +70,14 @@ func (p *PostgresStore) createAccount(account *Account) error {
 	($1, $2, $3, $4, $5)
 	`
 
-	log.Println(account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
+	// log.Println(account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
 
-	response, err := p.db.Query(query, account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
+	_, err := p.db.Query(query, account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("%+v \n", response)
+	// log.Printf("%+v \n", "test")
 
 	return nil
 }

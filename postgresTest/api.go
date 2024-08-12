@@ -44,6 +44,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 }
 
 func NewAPIServer(listenAddr string, store Storage) *APIServer {
+	fmt.Printf("running on port %v", listenAddr)
 	return &APIServer{
 		listAddr: listenAddr,
 		store:    store,

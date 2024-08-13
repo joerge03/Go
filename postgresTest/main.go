@@ -24,7 +24,7 @@ func seedAccounts(s Storage) {
 }
 
 func main() {
-	seed := flag.Bool("seed", false, "seed the db")
+	seed := flag.Bool("seedo", false, "seed the db")
 	flag.Parse()
 
 	store, err := NewPostgresStore()
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	if *seed {
-		fmt.Println("Teststs")
+		fmt.Println("account seeding (makin some seed XD)")
 		seedAccounts(store)
 	}
 

@@ -101,12 +101,14 @@ func (p *PostgresStore) getAccountByID(id int) (*Account, error) {
 }
 
 func (p *PostgresStore) getAccountByNumber(num int) (*Account, error) {
+	fmt.Println(num, "asdfasdf")
 	row, err := p.db.Query("SELECT * FROM account WHERE number = $1", num)
 	if err != nil {
 		return nil, err
 	}
 
 	acc, err := scanIntoAccount(row)
+	fmt.Printf("acc: %v", acc)
 	if err != nil {
 		return nil, err
 	} else if len(acc) == 0 {

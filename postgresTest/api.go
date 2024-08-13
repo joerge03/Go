@@ -44,7 +44,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 }
 
 func NewAPIServer(listenAddr string, store Storage) *APIServer {
-	fmt.Printf("running on port %v", listenAddr)
+	fmt.Printf("running on port %v\n", listenAddr)
 	return &APIServer{
 		listAddr: listenAddr,
 		store:    store,
@@ -63,15 +63,25 @@ func (s *APIServer) Run() {
 }
 
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
-	var req LoginRequest
+	// var req LoginRequest
+	req := new(LoginRequest)
 
+	fmt.Printf("req: %+v\n", req)
 	if r.Method != "POST" {
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
 	}
+
+	account, err := s.store.getAccountByNumber(req.AccountNumber)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("account : %+v\n", account)
+
 	return writeJSON(w, http.StatusAccepted, req)
 }
 

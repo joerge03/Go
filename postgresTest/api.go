@@ -82,7 +82,7 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 	err = s.validatePassword(account.EncryptedPassword, req.Password)
 	if err != nil {
-		return nil
+		return fmt.Errorf("password did not match")
 	}
 
 	return writeJSON(w, http.StatusAccepted, res)

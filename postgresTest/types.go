@@ -27,6 +27,20 @@ type Account struct {
 	Balance           int64     `json:"balance"`
 	CreatedAt         time.Time `json:"createdAt"`
 }
+type APIServer struct {
+	listAddr string
+	store    Storage
+}
+
+type LoginRequest struct {
+	AccountNumber int    `json:"accountNumber"`
+	Password      string `json:"password"`
+}
+
+type LoginResponse struct {
+	AccountNumber int    `json: "accountNumber"`
+	Token         string `json: "token"`
+}
 
 func NewAccount(firstName, lastName string, password string) (*Account, error) {
 	encryptedPw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

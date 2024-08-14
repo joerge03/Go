@@ -8,19 +8,10 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
-
-type APIServer struct {
-	listAddr string
-	store    Storage
-}
-
-type LoginRequest struct {
-	AccountNumber int    `json:"accountNumber"`
-	Password      string `json:"password"`
-}
 
 type ApiError struct {
 	Err string `json:"error"`
@@ -65,6 +56,7 @@ func (s *APIServer) Run() {
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	// var req LoginRequest
 	req := new(LoginRequest)
+	res := new(LoginResponse)
 
 	fmt.Printf("req: %+v\n", req)
 	if r.Method != "POST" {
@@ -80,9 +72,28 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	fmt.Printf("account : %+v\n", account)
+	token, err := createJWT(account)
+	if err != nil {
+		return err
+	}
 
-	return writeJSON(w, http.StatusAccepted, req)
+	res.Token = token
+	res.AccountNumber = req.AccountNumber
+
+	err = s.validatePassword(account.EncryptedPassword, req.Password)
+	if err != nil {
+		return nil
+	}
+
+	return writeJSON(w, http.StatusAccepted, res)
+}
+
+func (s *APIServer) validatePassword(hashedPassword string, password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {

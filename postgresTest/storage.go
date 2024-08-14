@@ -48,8 +48,9 @@ func (s *PostgresStore) init() error {
 func (s *PostgresStore) createAccountTable() error {
 	query := `create table if not exists account (
 	ID serial primary key,
-	firstName varchar(50),
-	lastName varchar(50),
+	firstName varchar(100),
+	lastName varchar(100),
+	encryptedPassword varchar(100),
 	number serial,
 	balance serial,
 	createdAt timestamp
@@ -65,14 +66,14 @@ func (s *PostgresStore) createAccountTable() error {
 func (p *PostgresStore) createAccount(account *Account) error {
 	query := `
 	insert into account
-	(firstName, lastName, number, balance, createdAt)
+	(firstName, lastName, encryptedPassword, number, balance, createdAt)
 	values
-	($1, $2, $3, $4, $5)
+	($1, $2, $3, $4, $5, $6)
 	`
 
 	// log.Println(account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
 
-	_, err := p.db.Query(query, account.FirstName, account.LastName, account.Number, account.Balance, account.CreatedAt)
+	_, err := p.db.Query(query, account.FirstName, account.LastName, account.EncryptedPassword, account.Number, account.Balance, account.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -145,7 +146,7 @@ func scanIntoAccount(rows *sql.Rows) ([]*Account, error) {
 
 	for rows.Next() {
 		acc := new(Account)
-		if err := rows.Scan(&acc.ID, &acc.FirstName, &acc.LastName, &acc.Number, &acc.Balance, &acc.CreatedAt); err != nil {
+		if err := rows.Scan(&acc.ID, &acc.FirstName, &acc.LastName, &acc.EncryptedPassword, &acc.Number, &acc.Balance, &acc.CreatedAt); err != nil {
 			return nil, err
 		}
 

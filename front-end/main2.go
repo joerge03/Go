@@ -63,7 +63,7 @@ func mains() {
 	price = 3.36
 	todoList = TodoList{
 		{Title: "train to busan", Description: "busan to train", Done: false},
-		{Title: "do chore", Description: "fckit", Done: false},
+		{Title: "do chore", Description: "test", Done: false},
 		{Title: "play games", Description: "yep", Done: true},
 	}
 

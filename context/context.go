@@ -25,9 +25,7 @@ func sampleOperation(ctx context.Context, str string, delay time.Duration) <-cha
 }
 
 func main() {
-	context1 := context.Background()
-
-	ctx, cancel := context.WithCancel(context1)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	webServer := sampleOperation(ctx, "webServer", 500)
 
@@ -51,7 +49,7 @@ Mainloop:
 			fmt.Println(test)
 			fmt.Println(<-database)
 		case <-ctx.Done():
-			fmt.Println("test")
+			fmt.Println("test done")
 			cancel()
 			break Mainloop
 

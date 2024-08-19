@@ -29,7 +29,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-const dbTimeout = time.Second * 3
+const dbTimeout = time.Second * 2
 
 var db *sql.DB
 
@@ -208,10 +208,10 @@ func (u *User) Insert(user User) (int, error) {
 	}
 
 	var newID int
-	stmt := `insert into users (email, first_name, last_name, password, user_active, created_at, updated_at)
+	query := `insert into users (email, first_name, last_name, password, user_active, created_at, updated_at)
 		values ($1, $2, $3, $4, $5, $6, $7) returning id`
 
-	err = db.QueryRowContext(ctx, stmt,
+	err = db.QueryRowContext(ctx, query,
 		user.Email,
 		user.FirstName,
 		user.LastName,

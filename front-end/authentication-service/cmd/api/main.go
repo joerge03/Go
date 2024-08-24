@@ -9,9 +9,13 @@ import (
 	"time"
 
 	"authentication/data"
+
+	_ "github.com/jackc/pgconn"
+	_ "github.com/jackc/pgx/v4"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const port = "8080"
+const port = "8085"
 
 var counts int64
 
@@ -46,7 +50,7 @@ func main() {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("db", dsn)
+	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
 	}

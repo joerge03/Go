@@ -54,6 +54,7 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	// conn, err := pgxpool.Connect(context.Background(), "test")
 	err = db.Ping()
 	if err != nil {
 		return nil, err

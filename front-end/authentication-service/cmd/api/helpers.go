@@ -13,7 +13,7 @@ type jsonResponse struct {
 	Data    any    `json:"data"`
 }
 
-func (c *Config) ReadJson(w http.ResponseWriter, r *http.Request, data any) error {
+func ReadJson(w http.ResponseWriter, r *http.Request, data any) error {
 	maxSize := int64(1048576)
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxSize)
@@ -34,7 +34,7 @@ func (c *Config) ReadJson(w http.ResponseWriter, r *http.Request, data any) erro
 	return nil
 }
 
-func (c *Config) WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Header) error {
+func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Header) error {
 	output, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (c *Config) WriteJSON(w http.ResponseWriter, data any, status int, headers 
 	return nil
 }
 
-func (c *Config) ErrorJson(w http.ResponseWriter, err error, status ...int) error {
+func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	defaultErrorStatus := http.StatusBadRequest
 
 	if status[0] != 0 {
@@ -69,8 +69,9 @@ func (c *Config) ErrorJson(w http.ResponseWriter, err error, status ...int) erro
 	payload.Message = err.Error()
 	payload.Error = true
 
-	return c.WriteJSON(w, payload, defaultErrorStatus)
+	return WriteJSON(w, payload, defaultErrorStatus)
 }
 
-func (c *Config) login(w http.ResponseWriter, r *http.Request) {
+func (c *Config) getAuthTokenByEmail(w http.ResponseWriter, r *http.Request, email string) (string, error) {
+	return "", nil
 }

@@ -18,5 +18,7 @@ func (c *Config) routes() http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+
+	r.Post("/login", c.login)
 	return r
 }

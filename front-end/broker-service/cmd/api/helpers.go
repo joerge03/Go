@@ -15,9 +15,9 @@ type jsonResponse struct {
 }
 
 func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) error {
-	MaxByte := 1048576
+	MaxByte := int64(1048576)
 
-	r.Body = http.MaxBytesReader(w, r.Body, int64(MaxByte))
+	r.Body = http.MaxBytesReader(w, r.Body, MaxByte)
 
 	dec := json.NewDecoder(r.Body)
 
@@ -29,7 +29,7 @@ func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) 
 	err = dec.Decode(&struct{}{})
 
 	if err != io.EOF {
-		return errors.New("please enter only one JSON")
+		return errors.New("p lease enter only one JSON")
 	}
 
 	return err
@@ -58,7 +58,7 @@ func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, header
 	return nil
 }
 
-func (app *Config) errorJson(w http.ResponseWriter, err error, status ...int) error {
+func (app *Config) ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
 	if len(status) != 0 {

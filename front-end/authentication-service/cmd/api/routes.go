@@ -7,6 +7,16 @@ import (
 	"github.com/go-chi/cors"
 )
 
+type apiFunc func(w http.ResponseWriter, r *http.Request) error
+
+func (c *Config) handleHttpFunc(f apiFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := f(w, r); err != nil {
+			ErrorJson(w, err)
+		}
+	}
+}
+
 func (c *Config) routes() http.Handler {
 	r := chi.NewRouter()
 
@@ -18,5 +28,11 @@ func (c *Config) routes() http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+
+	r.Post("/login", c.handleHttpFunc(c.handleLogin))
 	return r
+}
+
+func (c *Config) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }

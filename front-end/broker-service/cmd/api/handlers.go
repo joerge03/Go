@@ -10,5 +10,5 @@ func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 		Message: "Test broker",
 	}
 
-	app.writeJSON(w, http.StatusOK, payload)
+	app.writeJSON(w, http.StatusOK, payload, r.Header)
 }

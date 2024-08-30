@@ -30,6 +30,6 @@ func (test math) com(num, num1 uint) uint {
 	}
 }
 
-func main() {
+func main23() {
 	fmt.Println(div.com(4, 6))
 }

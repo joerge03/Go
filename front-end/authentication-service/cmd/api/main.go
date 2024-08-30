@@ -13,6 +13,7 @@ import (
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/joho/godotenv"
 )
 
 const port = "8085"
@@ -25,6 +26,10 @@ type Config struct {
 }
 
 func main() {
+	err := godotenv.Load("JWT_TOKEN")
+	if err != nil {
+		log.Fatal("Unable to load env")
+	}
 	db := connectToDb()
 
 	if db == nil {
@@ -41,7 +46,7 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal("Something wrong with the server, err:", err)
 	}
@@ -54,6 +59,7 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	// conn, err := pgxpool.Connect(context.Background(), "test")
 	err = db.Ping()
 	if err != nil {
 		return nil, err

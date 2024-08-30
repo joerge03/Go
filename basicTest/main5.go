@@ -1,8 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func main5(){
+func main() {
 	// slice := []string{"test","test1","test2"}
 
 	// for _,element :=  range slice {
@@ -14,10 +16,10 @@ func main5(){
 
 	// }
 
-	mapTest := make(map[string]int)
+	mapTest := make(map[string][]int)
 
-	mapTest["sdaf"] = 23
-	mapTest["test"] = 5
+	mapTest["sdaf"] = []int{1, 2}
+	mapTest["test"] = []int{3, 4}
 
 	// mapTest := map[string]int{
 	// 	"asdf": 2,
@@ -30,15 +32,13 @@ func main5(){
 
 	delete(mapTest, "sdaf")
 
-
 	sdaf, exist := mapTest["sdaf"]
 
-	if !exist{
+	if !exist {
 		fmt.Println("sdaf does not exist")
-		} 
+	}
 	fmt.Println(sdaf)
-	fmt.Println(exist)
-
+	// fmt.Println(exist)
 
 	// for i,key := range mapTest {
 
@@ -47,8 +47,8 @@ func main5(){
 	// 	}
 
 	// 	fmt.Println	(key)
-		
+
 	// }
 
-	fmt.Println(mapTest)
+	// fmt.Println(mapTest)
 }

@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -242,24 +244,36 @@ func (u *User) ResetPassword(password string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
 // PasswordMatches uses Go's bcrypt package to compare a user supplied password
 // with the hash we have stored for a given user in the database. If the password
 // and hash match, we return true; otherwise, we return false.
-func (u *User) PasswordMatches(plainText string) (bool, error) {
+func (u *User) PasswordMatches(plainText string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainText))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 			// invalid password
-			return false, nil
+			return fmt.Errorf("invalid pass")
 		default:
-			return false, err
+			return err
 		}
 	}
 
-	return true, nil
+	return nil
+}
+
+func (user *User) CreateJWT(secret []byte) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  user.ID,
+		"tte": time.Now().Add(time.Hour * 4).Unix(),
+	})
+
+	signedToken, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
 }

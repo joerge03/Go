@@ -76,20 +76,17 @@ func validateJWT(userToken string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return []byte(secret), nil
 	})
 	if err != nil {
 		return token, err
 	}
-
 	// if claims, ok := token.Claims.(jwt.MapClaims); ok {
 	// 	// fmt.Println(claims["id"], claims["ttl"])
 	// 	// fmt.Println("test claims ", claims)
 	// } else {
 	// 	fmt.Println(err, "errasdfasdfsaf")
 	// }
-
 	return token, nil
 }

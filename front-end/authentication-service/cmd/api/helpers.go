@@ -5,12 +5,22 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    any    `json:"data"`
+}
+
+type LoginPayload struct {
+	Email    string `json:email`
+	Password string `json:password`
+}
+type LoginResponse struct {
+	ID    int    `json:"id"`
+	Token string `json:"token"`
 }
 
 func ReadJson(w http.ResponseWriter, r *http.Request, data any) error {
@@ -72,6 +82,39 @@ func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	return WriteJSON(w, payload, defaultErrorStatus)
 }
 
-func (c *Config) getAuthTokenByEmail(w http.ResponseWriter, r *http.Request, email string) (string, error) {
-	return "", nil
+func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
+	secret := os.Getenv("JWT_TOKEN")
+
+	req := new(LoginPayload)
+	res := new(LoginResponse)
+
+	if r.Method != "POST" {
+		return "", fmt.Errorf("Method unavailable")
+	}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		return "", nil
+	}
+
+	user, err := c.Models.User.GetByEmail(req.Email)
+	if err != nil {
+		return "", err
+	}
+
+	err = user.PasswordMatches(req.Password)
+	if err != nil {
+		return "", err
+	}
+	token, err := user.CreateJWT([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+	res.Token = token
+	res.ID = user.ID
+
+	err = WriteJSON(w, res, http.StatusAccepted)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }

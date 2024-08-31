@@ -19,6 +19,7 @@ func PermissionDenied(w http.ResponseWriter) error {
 }
 
 func withJWTAuth(w http.ResponseWriter, r *http.Request, s Storage, handlerFunc apiFunc) error {
+	account := new(Account)
 	log.Println("running middleware")
 	tokenString := r.Header.Get("x-jwt-token")
 
@@ -26,12 +27,12 @@ func withJWTAuth(w http.ResponseWriter, r *http.Request, s Storage, handlerFunc 
 	if err != nil {
 		return PermissionDenied(w)
 	}
+
 	claims := token.Claims.(jwt.MapClaims)
 	var formattedAccountNumber int
 
 	queries := mux.Vars(r)
 	accountNumber, ok := queries["accountNumber"]
-	account := new(Account)
 
 	if ok {
 		formattedAccountNumber, err = strconv.Atoi(accountNumber)
@@ -45,7 +46,7 @@ func withJWTAuth(w http.ResponseWriter, r *http.Request, s Storage, handlerFunc 
 		}
 	}
 
-	if ok && claims["accountNumber"] != account.Number {
+	if ok && (claims["accountNumber"] != account.Number) {
 		return PermissionDenied(w)
 	}
 	// fmt.Println(claims, "claims")

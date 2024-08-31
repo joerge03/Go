@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -265,10 +266,11 @@ func (u *User) PasswordMatches(plainText string) error {
 	return nil
 }
 
-func (user *User) CreateJWT(secret []byte) (string, error) {
+func (user *User) CreateJWT(expiration time.Duration) (string, error) {
+	secret := os.Getenv("JWT_TOKEN")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.ID,
-		"tte": time.Now().Add(time.Hour * 4).Unix(),
+		"tte": time.Now().Add(expiration).Unix(),
 	})
 
 	signedToken, err := token.SignedString(secret)

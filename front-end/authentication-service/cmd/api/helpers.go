@@ -105,7 +105,7 @@ func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Head
 func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	defaultErrorStatus := http.StatusBadRequest
 
-	if status[0] != 0 {
+	if len(status) > 0 && status[0] != 0 {
 		defaultErrorStatus = status[0]
 	}
 
@@ -127,12 +127,14 @@ func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("error decoder")
 	}
 
 	user, err := c.Models.User.GetByEmail(req.Email)
 	if err != nil {
 		return err
+	} else if user == nil {
+		return fmt.Errorf("access denied")
 	}
 
 	err = user.PasswordMatches(req.Password)

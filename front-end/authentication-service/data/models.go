@@ -105,6 +105,11 @@ func (u *User) GetByEmail(email string) (*User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("no user found with this email")
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +267,6 @@ func (u *User) PasswordMatches(plainText string) error {
 			return err
 		}
 	}
-
 	return nil
 }
 

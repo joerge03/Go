@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -36,10 +37,10 @@ func (c *Config) routes() http.Handler {
 	}))
 
 	r.Post("/login", c.handleHttpFunc(c.handleLogin))
-	r.Post("/get", c.handleHttpFunc(c.handleLogin))
 	return r
 }
 
 func (c *Config) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	fmt.Println("login teststssssss")
 	return c.authenticate(w, r)
 }

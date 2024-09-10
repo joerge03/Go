@@ -23,5 +23,6 @@ func (app *Config) routes() http.Handler {
 	r.Use(middleware.Heartbeat("/ping"))
 
 	r.Post("/", app.Broker)
+	r.Post("/handle", app.handleSubmit)
 	return r
 }

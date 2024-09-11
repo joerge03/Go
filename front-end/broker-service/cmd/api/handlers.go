@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -28,7 +29,6 @@ func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 
 func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	reqPayload := new(RequestPayload)
-
 	err := app.JsonReader(w, r, reqPayload)
 	if err != nil {
 		app.ErrorJson(w, err, http.StatusInternalServerError)
@@ -37,7 +37,6 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	switch reqPayload.Action {
 	case "auth":
 		app.authorize(w, reqPayload.Auth)
-
 	default:
 		app.ErrorJson(w, fmt.Errorf("action not available"))
 	}
@@ -49,12 +48,13 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		app.ErrorJson(w, err, http.StatusInternalServerError)
 		return
 	}
-
 	request, err := http.NewRequest("POST", "https://authentication-service/login", bytes.NewReader(jsonData))
 	if err != nil {
 		app.ErrorJson(w, err)
 		return
 	}
+
+	log.Println(request.Body)
 
 	client := http.Client{}
 	res, err := client.Do(request)
@@ -62,6 +62,7 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		app.ErrorJson(w, err)
 		return
 	}
+	defer res.Body.Close()
 	if res.StatusCode == http.StatusUnauthorized {
 		app.ErrorJson(w, fmt.Errorf("invalid credentials"))
 		return
@@ -71,7 +72,9 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 	}
 
 	jsonRes := new(jsonResponse)
+
 	err = json.NewDecoder(res.Body).Decode(jsonRes)
+	// err = app.JsonReader(w, request, jsonRes)
 	if err != nil {
 		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
 		return
@@ -80,7 +83,6 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
 		return
 	}
-
 	err = app.writeJSON(w, http.StatusAccepted, jsonRes)
 	if err != nil {
 		app.ErrorJson(w, fmt.Errorf("error calling auth service"))

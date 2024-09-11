@@ -9,29 +9,73 @@
     <button id="brokerBtn" href="javascript:void(0);"  >
       test broker
     </button>
+    <button id="authBrokerBtn" href="javascript:void(0);"  >
+      Auth broker btn
+    </button>
     {{template "page1"}} 
     <br></br>
      {{template "page2"}} 
     <br></br>
     {{template "page3"}} 
     <br></br>
-
     {{define "js"}}
-
     <script>
       var testButton = document.getElementById("brokerBtn")
+      var authBroker = document.getElementById("authBrokerBtn")
       var output =  document.getElementById("output")
       var payload = document.getElementById("payload")
       var received = document.getElementById("received")
+
+
+
+      authBroker.addEventListener ("click",async function () {
+        console.log("clicked")
+        const pay = { 
+            action: "auth",
+            Auth: {
+            email: "admin@example.com",
+            password: "verysecret"
+            }
+          }
+        const body = {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},          
+          body: JSON.stringify(pay)
+        }
+
+        try {          
+          const res = await fetch("http:\/\/localhost:8083/handle", body)    
+          console.log("asfdsadfas", res)
+          if (!res.ok){
+            throw Error("there is something wrong fetching handle")
+          }
+          const data = await res.json()          
+
+          payload.innerHTML = JSON.stringify(pay, undefined, 4)
+          received.innerHTML = data          
+          if (data.error){
+            console.log(data.error)
+            output.innerHTML = `<br/> <h1> error: ${data.error}</h1>`           
+          }
+
+          
+          output.innerText = json
+        } catch (error) {
+            console.log(error)
+            output.innerHTML = `<br> <h1> Error: </h1> ${error}`
+        }
+      })
+      
+      
       testButton.addEventListener("click", function(){
         const body= {
           method: 'POST',
-          Headers: {"Content-Type": 'application/json'}                    
+          headers: {"Content-Type": 'application/json'}
         }
 
         testButton.innerText = "testing"
   
-        fetch("http:\/\/localhost:80", body)
+        fetch("http:\/\/localhost:8085", body)
         .then((response)=> {
           console.log(response)
           return response.json()    
@@ -39,8 +83,8 @@
         .then((data)=>{
           payload.innerHTML = "empty post request"
           received.innerHTML = JSON.stringify(data, undefined, 4)
-          if (data.error){
-            console.log(data.error)
+          if (data){
+            // console.log(data.error)
             console.log(data)
           }else{
             console.log(data)
@@ -50,7 +94,7 @@
           console.log(err)
             output.innerHTML = `<br> <h1> Error: </h1> ${err}`
         })
-      })     
+      })
     </script>
 
     {{end}}

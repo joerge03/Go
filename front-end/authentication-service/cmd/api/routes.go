@@ -37,10 +37,10 @@ func (c *Config) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	r.Post("/login", c.handleHttpFunc(c.handleLogin))
-	r.Post("/create", c.handleHttpFunc(c.handleCreate))
-
 	r.Use(middleware.Heartbeat("/ping"))
+	r.Post("/login", c.handleHttpFunc(c.handleLogin))
+	// r.Post("/create", c.handleHttpFunc(c.handleCreate))
+
 	return r
 }
 

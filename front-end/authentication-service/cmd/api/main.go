@@ -16,7 +16,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const port = "8085"
+const port = "8083"
 
 var counts int64
 
@@ -26,10 +26,8 @@ type Config struct {
 }
 
 func main() {
-	err := godotenv.Load("JWT_TOKEN")
-	if err != nil {
-		log.Fatal("Unable to load env")
-	}
+	var err error
+	godotenv.Load()
 	db := connectToDb()
 
 	if db == nil {
@@ -84,8 +82,6 @@ func connectToDb() *sql.DB {
 			fmt.Printf("It took to many attempts of reconnecting")
 			return nil
 		}
-
-		fmt.Println("sleeping hehe XD HIIII HIIII. OWWW")
 		time.Sleep(2 * time.Second)
 		continue
 	}

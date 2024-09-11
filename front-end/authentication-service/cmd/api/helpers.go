@@ -6,6 +6,9 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type jsonResponse struct {
@@ -15,12 +18,44 @@ type jsonResponse struct {
 }
 
 type LoginPayload struct {
-	Email    string `json:email`
-	Password string `json:password`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
-type LoginResponse struct {
+type TokenResponse struct {
 	ID    int    `json:"id"`
 	Token string `json:"token"`
+}
+
+type ApiError struct {
+	Error string `json:"error"`
+}
+
+func (c *Config) AuthWithJWT(w http.ResponseWriter, r *http.Request, handleFunc apiFunc) error {
+	headerToken := r.Header.Get("x-jwt-token")
+
+	_, err := c.ValidateJWT(headerToken)
+	if err != nil {
+		return err
+	}
+
+	return handleFunc(w, r)
+}
+
+func (c *Config) ValidateJWT(token string) (*jwt.Token, error) {
+	secret := os.Getenv("JWT_TOKEN")
+	claims := new(jwt.Claims)
+
+	tokenWithClaims, err := jwt.ParseWithClaims(token, *claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return tokenWithClaims, nil
 }
 
 func ReadJson(w http.ResponseWriter, r *http.Request, data any) error {
@@ -70,7 +105,7 @@ func WriteJSON(w http.ResponseWriter, data any, status int, headers ...http.Head
 func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	defaultErrorStatus := http.StatusBadRequest
 
-	if status[0] != 0 {
+	if len(status) > 0 && status[0] != 0 {
 		defaultErrorStatus = status[0]
 	}
 
@@ -82,39 +117,38 @@ func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 	return WriteJSON(w, payload, defaultErrorStatus)
 }
 
-func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) (string, error) {
-	secret := os.Getenv("JWT_TOKEN")
-
+func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) error {
 	req := new(LoginPayload)
-	res := new(LoginResponse)
+	res := new(TokenResponse)
 
 	if r.Method != "POST" {
-		return "", fmt.Errorf("Method unavailable")
+		return fmt.Errorf("method not allowed")
 	}
+
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
-		return "", nil
+		return fmt.Errorf("error decoder")
 	}
 
 	user, err := c.Models.User.GetByEmail(req.Email)
 	if err != nil {
-		return "", err
+		return err
+	} else if user == nil {
+		return fmt.Errorf("access denied")
 	}
 
 	err = user.PasswordMatches(req.Password)
 	if err != nil {
-		return "", err
+		return err
 	}
-	token, err := user.CreateJWT([]byte(secret))
+
+	token, err := user.CreateJWT(time.Minute * 3)
 	if err != nil {
-		return "", err
+		return err
 	}
+
 	res.Token = token
 	res.ID = user.ID
 
-	err = WriteJSON(w, res, http.StatusAccepted)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	return WriteJSON(w, res, http.StatusAccepted)
 }

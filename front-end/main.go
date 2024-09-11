@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -25,9 +26,12 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	log.Printf("running on port: %v", 8081)
 	http.HandleFunc("/", handleIndex)
-	err := http.ListenAndServe(":8081", nil)
+	err := http.ListenAndServe(":8082", nil)
+	log.Printf("running on port: %vasdfasdfasdf", 8081)
 	if err != nil {
+		fmt.Println(err, "errr")
 		fmt.Println(err)
 	}
 }

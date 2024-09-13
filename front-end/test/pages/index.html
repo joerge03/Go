@@ -28,13 +28,13 @@
 
 
 
-      authBroker.addEventListener ("click",async function () {
-        console.log("clicked")
+      authBroker.addEventListener("click", async function () {
+        console.log("clicked 32")
         const pay = { 
             action: "auth",
-            Auth: {
-            email: "admin@example.com",
-            password: "verysecret"
+            auth: {
+                email: "admin@example.com",
+                password: "verysecret"
             }
           }
         const body = {
@@ -42,24 +42,22 @@
           headers: {"Content-Type": "application/json"},          
           body: JSON.stringify(pay)
         }
+        console.log(JSON.stringify(pay))
 
         try {          
-          const res = await fetch("http:\/\/localhost:8083/handle", body)    
-          console.log("asfdsadfas", res)
+          const res = await fetch("http:\/\/localhost:8085/handle", body)    
+          
           if (!res.ok){
             throw Error("there is something wrong fetching handle")
           }
           const data = await res.json()          
 
           payload.innerHTML = JSON.stringify(pay, undefined, 4)
-          received.innerHTML = data          
+          received.innerHTML = JSON.stringify(data)          
           if (data.error){
             console.log(data.error)
             output.innerHTML = `<br/> <h1> error: ${data.error}</h1>`           
           }
-
-          
-          output.innerText = json
         } catch (error) {
             console.log(error)
             output.innerHTML = `<br> <h1> Error: </h1> ${error}`

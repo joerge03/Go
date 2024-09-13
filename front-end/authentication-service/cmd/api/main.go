@@ -16,7 +16,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const port = "8083"
+const port = "80"
 
 var counts int64
 
@@ -26,8 +26,10 @@ type Config struct {
 }
 
 func main() {
-	var err error
 	godotenv.Load()
+
+	fmt.Println(os.Getenv("DSN"))
+
 	db := connectToDb()
 
 	if db == nil {
@@ -44,12 +46,11 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal("Something wrong with the server, err:", err)
 	}
-
-	fmt.Printf("Running on localhosts:%v\n", port)
+	log.Fatal("Running on localhosts:", port)
 }
 
 func openDB(dsn string) (*sql.DB, error) {
@@ -62,7 +63,6 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return db, nil
 }
 
@@ -72,14 +72,14 @@ func connectToDb() *sql.DB {
 	for {
 		db, err := openDB(dsnToken)
 		if err != nil {
-			fmt.Printf("there is a err %v", err)
+			log.Fatal("there is a err", err)
 			counts++
 		} else {
 			return db
 		}
 
 		if counts > 10 {
-			fmt.Printf("It took to many attempts of reconnecting")
+			log.Fatal("It took to many attempts of reconnecting")
 			return nil
 		}
 		time.Sleep(2 * time.Second)

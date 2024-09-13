@@ -276,7 +276,7 @@ func (user *User) CreateJWT(expiration time.Duration) (string, error) {
 		"tte": time.Now().Add(expiration).Unix(),
 	})
 
-	signedToken, err := token.SignedString(secret)
+	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}

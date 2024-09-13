@@ -118,14 +118,15 @@ func ErrorJson(w http.ResponseWriter, err error, status ...int) error {
 }
 
 func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) error {
+	fmt.Printf("authenticate\n")
 	req := new(LoginPayload)
 	res := new(TokenResponse)
 
 	if r.Method != "POST" {
 		return fmt.Errorf("method not allowed")
 	}
-
 	err := json.NewDecoder(r.Body).Decode(req)
+	fmt.Printf("recieved %v\n", req)
 	if err != nil {
 		return fmt.Errorf("error decoder")
 	}
@@ -139,16 +140,20 @@ func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	err = user.PasswordMatches(req.Password)
 	if err != nil {
+		fmt.Printf("error pass %v", err)
 		return err
 	}
 
 	token, err := user.CreateJWT(time.Minute * 3)
 	if err != nil {
+		fmt.Printf("token err %v", err)
 		return err
 	}
 
 	res.Token = token
 	res.ID = user.ID
+
+	fmt.Printf(`return by auth - %v\n`, res)
 
 	return WriteJSON(w, res, http.StatusAccepted)
 }

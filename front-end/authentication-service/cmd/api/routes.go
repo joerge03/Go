@@ -13,6 +13,7 @@ type apiFunc func(w http.ResponseWriter, r *http.Request) error
 
 func (c *Config) handleHttpFunc(f apiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("handle http func ------- \n")
 		var err error
 		// switch r.Method {
 		// case "POST":
@@ -27,25 +28,24 @@ func (c *Config) handleHttpFunc(f apiFunc) http.HandlerFunc {
 
 func (c *Config) routes() http.Handler {
 	r := chi.NewRouter()
+	fmt.Println("auth enter")
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"PUT", "POST", "DELETE", "GET", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-
 	r.Use(middleware.Heartbeat("/ping"))
 	r.Post("/login", c.handleHttpFunc(c.handleLogin))
 	// r.Post("/create", c.handleHttpFunc(c.handleCreate))
-
 	return r
 }
 
 func (c *Config) handleLogin(w http.ResponseWriter, r *http.Request) error {
-	fmt.Println("login teststssssss")
+	fmt.Printf("handle login!----------\n")
 	return c.authenticate(w, r)
 }
 

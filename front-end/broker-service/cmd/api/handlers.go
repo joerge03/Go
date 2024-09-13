@@ -4,18 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
-
-type AuthPayload struct {
-	Email    string `"json:"email"`
-	Password string `"json:"password"`
-}
 
 type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
+}
+type AuthPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +30,7 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	err := app.JsonReader(w, r, reqPayload)
 	if err != nil {
 		app.ErrorJson(w, err, http.StatusInternalServerError)
+		return
 	}
 
 	switch reqPayload.Action {
@@ -48,44 +47,46 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		app.ErrorJson(w, err, http.StatusInternalServerError)
 		return
 	}
-	request, err := http.NewRequest("POST", "https://authentication-service/login", bytes.NewReader(jsonData))
+	request, err := http.NewRequest("POST", "http://authentication-service/login", bytes.NewBuffer(jsonData))
 	if err != nil {
+		fmt.Printf("req err %v", err)
 		app.ErrorJson(w, err)
 		return
 	}
 
-	log.Println(request.Body)
-
-	client := http.Client{}
+	client := &http.Client{}
 	res, err := client.Do(request)
+	fmt.Printf(`res : %v , err? %v  `, res, err)
 	if err != nil {
+		fmt.Printf("err res %v", err)
 		app.ErrorJson(w, err)
 		return
 	}
-	defer res.Body.Close()
+
 	if res.StatusCode == http.StatusUnauthorized {
 		app.ErrorJson(w, fmt.Errorf("invalid credentials"))
 		return
 	} else if res.StatusCode != http.StatusAccepted {
-		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
+		app.ErrorJson(w, fmt.Errorf("error calling auth service 1"))
 		return
 	}
 
-	jsonRes := new(jsonResponse)
+	jsonRes := new(loginResponse)
 
 	err = json.NewDecoder(res.Body).Decode(jsonRes)
-	// err = app.JsonReader(w, request, jsonRes)
+	fmt.Println("ressss", jsonRes)
 	if err != nil {
-		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
+		app.ErrorJson(w, fmt.Errorf("error calling auth service 2"))
 		return
 	}
-	if jsonRes.Error {
-		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
-		return
-	}
+	// if jsonRes.Error {
+	// 	app.ErrorJson(w, fmt.Errorf("error calling auth service 3"))
+	// 	return
+	// }
 	err = app.writeJSON(w, http.StatusAccepted, jsonRes)
 	if err != nil {
-		app.ErrorJson(w, fmt.Errorf("error calling auth service"))
+		app.ErrorJson(w, fmt.Errorf("error calling auth service 4"))
 		return
 	}
+	defer res.Body.Close()
 }

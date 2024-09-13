@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -12,6 +13,11 @@ type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
+}
+
+type loginResponse struct {
+	ID    int    `json:"id"`
+	Token string `json:"token"`
 }
 
 func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) error {
@@ -27,12 +33,11 @@ func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) 
 	}
 
 	err = dec.Decode(&struct{}{})
-
 	if err != io.EOF {
 		return errors.New("p lease enter only one JSON")
 	}
 
-	return err
+	return nil
 }
 
 func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
@@ -40,7 +45,7 @@ func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, header
 
 	out, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(out)
+		log.Fatal(out)
 	}
 
 	if len(headers) > 0 {
@@ -50,7 +55,9 @@ func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, header
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+	if status != http.StatusAccepted {
+		w.WriteHeader(status)
+	}
 	_, err = w.Write(out)
 	if err != nil {
 		return err

@@ -24,7 +24,6 @@ func writeJSON(w http.ResponseWriter, status int, data any) error {
 }
 
 func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
-	// fmt.Println("testasdfsfasss")
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
 			// fmt.Println("testasdfsfa", r)

@@ -42,27 +42,31 @@ func main() {
 	app := Config{
 		Models: data.New(client),
 	}
+
+	go app.serve()
 }
 
 func (app *Config) serve() {
 	srv := http.Server{
-		Addr:    fmt.Sprintf(`:%v`, webPort),
+		Addr:    fmt.Sprintf(`:%s`, webPort),
 		Handler: app.routes(),
 	}
 
 	err := srv.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }
 
 func connectToMongo(ctx context.Context, cancel context.CancelFunc) (*mongo.Client, error) {
 	defer cancel()
+
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
 		Username: "admin",
 		Password: "password",
 	})
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return nil, err

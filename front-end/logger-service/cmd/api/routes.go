@@ -23,7 +23,7 @@ func (app *Config) routes() http.Handler {
 	}))
 	r.Use(middleware.Heartbeat("/ping"))
 
-	r.Post("/", routeHandler(app.WriteLog))
+	r.Post("/", app.routeHandler(app.WriteLog))
 
 	return r
 }

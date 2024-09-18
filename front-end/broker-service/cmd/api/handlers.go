@@ -10,14 +10,21 @@ import (
 type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
+	Log    LogPayload  `json:"log,omitempty"`
 }
+
 type AuthPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
+type LogPayload struct {
+	Name string `json:"name"`
+	Data any    `json:"data"`
+}
+
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
-	payload := jsonResponse{
+	payload := JsonResponse{
 		Error:   false,
 		Message: "Test broker",
 	}
@@ -36,10 +43,60 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	switch reqPayload.Action {
 	case "auth":
 		app.authorize(w, reqPayload.Auth)
+	case "log":
+		app.logIt(w, reqPayload.Log)
 	default:
 		app.ErrorJson(w, fmt.Errorf("action not available"))
 	}
 }
+
+func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
+	logPayload, err := json.MarshalIndent(pay, "", "\t")
+	if err != nil {
+		app.ErrorJson(w, err)
+		return
+	}
+	logUrl := "http://logger-service/"
+
+	client := http.Client{}
+	req, err := http.NewRequest("POST", logUrl, bytes.NewBuffer(logPayload))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		app.ErrorJson(w, err)
+		return
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		app.ErrorJson(w, err)
+		return
+	}
+	defer res.Body.Close()
+
+	response := new(JsonResponse)
+
+	err = json.NewDecoder(res.Body).Decode(response)
+	if err != nil {
+		app.ErrorJson(w, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusAccepted, response)
+	if err != nil {
+		app.ErrorJson(w, err)
+		return
+	}
+}
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 	jsonData, err := json.MarshalIndent(pay, "", "\t")
@@ -48,6 +105,7 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		return
 	}
 	request, err := http.NewRequest("POST", "http://authentication-service/login", bytes.NewBuffer(jsonData))
+	request.Header.Set("Content-Type", "application/json")
 	if err != nil {
 		fmt.Printf("req err %v", err)
 		app.ErrorJson(w, err)

@@ -27,7 +27,7 @@ type handlerFunc func(w http.ResponseWriter, r *http.Request) error
 func (app *Config) WriteJson(w http.ResponseWriter, data any, statusCode int, headers ...http.Header) error {
 	res, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("something wrong formatting json: %v\n", err)
+		return fmt.Errorf(`something wrong formatting json: %v\n`, err)
 	}
 
 	if len(headers) > 0 {
@@ -40,7 +40,7 @@ func (app *Config) WriteJson(w http.ResponseWriter, data any, statusCode int, he
 	w.WriteHeader(statusCode)
 	_, err = w.Write(res)
 	if err != nil {
-		return fmt.Errorf("There is something wrong writing res, %v", err)
+		return fmt.Errorf(`there is something wrong writing res, %v`, err)
 	}
 	return nil
 }
@@ -53,12 +53,12 @@ func (app *Config) ReadJson(w http.ResponseWriter, r *http.Request, data any) er
 
 	err := decoder.Decode(r.Body)
 	if err != nil {
-		return fmt.Errorf("something wrong decoding body :%v \n", err)
+		return fmt.Errorf(`something wrong decoding body :%v \n`, err)
 	}
 
-	err = decoder.Decode(struct{}{})
+	err = decoder.Decode(&struct{}{})
 	if err != io.EOF {
-		return fmt.Errorf("Please upload only 1 file at time : %v\n", err)
+		return fmt.Errorf(`please upload only 1 file at time : %v\n`, err)
 	}
 	return nil
 }
@@ -85,7 +85,9 @@ func (app *Config) WriteError(w http.ResponseWriter, errMessage error, status ..
 func (app *Config) routeHandler(f handlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
-			log.Fatal(err)
+
+			routeHandlerError := fmt.Errorf(`route handler error: %s\n`, err.Error())
+			app.WriteError(w, routeHandlerError)
 		}
 	}
 }
@@ -109,7 +111,7 @@ func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) error {
 	jsonResponse.Error = false
 	jsonResponse.Message = "saved"
 
-	err = app.WriteJson(w, jsonPayload, http.StatusAccepted)
+	err = app.WriteJson(w, jsonResponse, http.StatusAccepted)
 	if err != nil {
 		return err
 	}

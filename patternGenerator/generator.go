@@ -30,13 +30,6 @@ func generateNumbers(amount, max, min int) <-chan int {
 }
 
 func main() {
-	// fmt.Println(<-generate(2, 25))
-	// fmt.Println(<-generate(2, 25))
-	// fmt.Println(<-generate(2, 25))
-	// fmt.Println(<-generate(2, 25))
-	// fmt.Println(<-generate(2, 25))
-	// fmt.Println(<-generate(2, 25))
-
 	numbers := generateNumbers(25, 20, 1)
 
 	for {
@@ -48,10 +41,5 @@ func main() {
 		fmt.Println(number1)
 	}
 
-	fmt.Println(<-numbers)
-	fmt.Println(<-numbers)
-	fmt.Println(<-numbers)
-	fmt.Println(<-numbers)
-	fmt.Println(<-numbers)
 	fmt.Println(<-numbers)
 }

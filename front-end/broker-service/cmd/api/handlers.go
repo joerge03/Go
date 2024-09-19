@@ -44,6 +44,7 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	case "auth":
 		app.authorize(w, reqPayload.Auth)
 	case "log":
+		fmt.Println("log selected")
 		app.logIt(w, reqPayload.Log)
 	default:
 		app.ErrorJson(w, fmt.Errorf("action not available"))
@@ -53,22 +54,23 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
 	logPayload, err := json.MarshalIndent(pay, "", "\t")
 	if err != nil {
-		app.ErrorJson(w, err)
+		app.ErrorJson(w, fmt.Errorf(`there's something wrong using marshal with the data: %v`, err))
 		return
 	}
-	logUrl := "http://logger-service/"
+	logUrl := "http://logger-service"
+	fmt.Println("payload log it", pay)
 
 	client := http.Client{}
 	req, err := http.NewRequest("POST", logUrl, bytes.NewBuffer(logPayload))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		app.ErrorJson(w, err)
+		app.ErrorJson(w, fmt.Errorf(`error in making new request in logit, %v`, err))
 		return
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
-		app.ErrorJson(w, err)
+		app.ErrorJson(w, fmt.Errorf(`error in client do %v`, err))
 		return
 	}
 	defer res.Body.Close()
@@ -76,6 +78,8 @@ func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
 	response := new(JsonResponse)
 
 	err = json.NewDecoder(res.Body).Decode(response)
+
+	fmt.Println("response log it", response)
 	if err != nil {
 		app.ErrorJson(w, err)
 		return

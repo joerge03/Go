@@ -34,7 +34,7 @@ type Test12 struct {
 	test map[int]int
 }
 
-func main() {
+func main1232() {
 	jobs := makeJobs()
 
 	resultChan := make(chan int, 10)

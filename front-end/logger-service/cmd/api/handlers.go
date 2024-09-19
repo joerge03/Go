@@ -101,6 +101,8 @@ func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	payload := data.LogEntry{Name: jsonPayload.Name, Data: jsonPayload.Data, CreatedAt: time.Now()}
+
+	fmt.Println("payload", payload)
 	err = app.Models.LogEntry.InsertOne(payload)
 	if err != nil {
 		return err

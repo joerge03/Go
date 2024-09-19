@@ -46,7 +46,7 @@ func doubler(job <-chan job, res chan<- result, conType chan controlType) {
 	}
 }
 
-func main5436345() {
+func main34124213() {
 	jobs := make(chan job, 101)
 	results := make(chan result, 50)
 	control := make(chan controlType)

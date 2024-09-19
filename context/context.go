@@ -9,6 +9,7 @@ import (
 func sampleOperation(ctx context.Context, str string, delay time.Duration) <-chan string {
 	out := make(chan string)
 
+	// wg.Add(1)
 	go func() {
 		for {
 			select {
@@ -20,7 +21,6 @@ func sampleOperation(ctx context.Context, str string, delay time.Duration) <-cha
 			}
 		}
 	}()
-
 	return out
 }
 
@@ -29,34 +29,32 @@ func main() {
 
 	webServer := sampleOperation(ctx, "webServer", 500)
 
-	microServices := sampleOperation(ctx, "microServices", 700)
-	database := sampleOperation(ctx, "database", 800)
+	microServices := sampleOperation(ctx, "microServices", 500)
+	database := sampleOperation(ctx, "database", 500)
 
 	go func() {
-		time.Sleep(900 * time.Millisecond)
+		fmt.Println("go func cancel ")
+		time.Sleep(500 * time.Millisecond)
 		cancel()
-		fmt.Println("testing")
 	}()
 
-Mainloop:
+	// Mainloop:
 	for {
 		select {
 		case test := <-webServer:
 			fmt.Println(test)
 		case test := <-microServices:
-			fmt.Println(test, "canceled")
+			fmt.Println(test)
 		case test := <-database:
 			fmt.Println(test)
-			fmt.Println(<-database)
-		case <-ctx.Done():
-			fmt.Println("test done")
-			cancel()
-			break Mainloop
+			// fmt.Println("asdf")
 
 			// case test := <-database:
 			// 	fmt.Println(test)
 		}
 	}
+
+	// wg.Wait()
 
 	// fmt.Println(<-database)
 	// fmt.Println(<-database)

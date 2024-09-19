@@ -12,6 +12,10 @@
     <button id="authBrokerBtn" href="javascript:void(0);"  >
       Auth broker btn
     </button>
+    </button>
+    <button id="loggerBtn" href="javascript:void(0);"  >
+      logger btn
+    </button>
     {{template "page1"}} 
     <br></br>
      {{template "page2"}} 
@@ -22,9 +26,45 @@
     <script>
       var testButton = document.getElementById("brokerBtn")
       var authBroker = document.getElementById("authBrokerBtn")
+      var loggerButton = document.getElementById("loggerBtn")
       var output =  document.getElementById("output")
       var payload = document.getElementById("payload")
       var received = document.getElementById("received")
+
+      loggerButton.addEventListener("click",async ()=>  {
+        
+        console.log("logger button clicked")
+
+        try {
+          const pay = {
+            action: "log",
+            log: {
+              name: "batumbakal",
+              data: {"testing": "asdf" }
+            }
+          }
+          const data = {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json" 
+            },
+            body: JSON.stringify(pay) 
+          }
+          let res  = await fetch("http://localhost:8085/handle", data)
+          if (!res.ok){
+          throw Error("there is something wrong fetching handle")
+        }
+
+          const resData = await res.json()
+          if (resData.error){
+            console.log("there is something wrong fetching log")            
+          }
+          payload.innerHTML = JSON.stringify(pay, undefined, 4)
+          received.innerHTML = JSON.stringify(data)     
+        } catch (err) {
+            output.innerHTML = `<br> <h1> Error: </h1> ${error}`       
+        }       
+      })
 
 
 

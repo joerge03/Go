@@ -49,6 +49,6 @@ func (c *Config) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	return c.authenticate(w, r)
 }
 
-func (c *Config) handleCreate(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
+// func (c *Config) handleCreate(w http.ResponseWriter, r *http.Request) error {
+// 	return nil
+// }

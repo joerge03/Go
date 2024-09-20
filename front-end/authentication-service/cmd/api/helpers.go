@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,6 +29,11 @@ type TokenResponse struct {
 
 type ApiError struct {
 	Error string `json:"error"`
+}
+
+type LogPayload struct {
+	Name string `json:"name"`
+	Data any    `json:"data"`
 }
 
 func (c *Config) AuthWithJWT(w http.ResponseWriter, r *http.Request, handleFunc apiFunc) error {
@@ -153,7 +159,27 @@ func (c *Config) authenticate(w http.ResponseWriter, r *http.Request) error {
 	res.Token = token
 	res.ID = user.ID
 
-	fmt.Printf(`return by auth - %v\n`, res)
+	const LogURL = "http://logger-service/"
+	logPayload := new(LogPayload)
+	logPayload.Name = user.FirstName
+	logPayload.Data = &req
+
+	logBufferedData, err := json.Marshal(logPayload)
+	if err != nil {
+		ErrorJson(w, fmt.Errorf(`error formatting log buffer payload : %v\n`, err))
+	}
+
+	logReq, err := http.NewRequest("POST", LogURL, bytes.NewReader(logBufferedData))
+	if err != nil {
+		ErrorJson(w, fmt.Errorf(`there's something wrong making a request: %v\n`, err))
+	}
+
+	logReq.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	_, err = client.Do(logReq)
+	if err != nil {
+		ErrorJson(w, fmt.Errorf(`there's something wrong make a request : %v\n`, err))
+	}
 
 	return WriteJSON(w, res, http.StatusAccepted)
 }

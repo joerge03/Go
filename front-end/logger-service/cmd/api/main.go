@@ -75,6 +75,6 @@ func connectToMongo(ctx context.Context, cancel context.CancelFunc) (*mongo.Clie
 		return nil, err
 	}
 
-	fmt.Println("success connecitng to mongo client")
+	fmt.Println("success connecting to mongo client")
 	return client, nil
 }

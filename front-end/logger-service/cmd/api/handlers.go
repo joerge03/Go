@@ -13,7 +13,7 @@ import (
 
 type JsonPayload struct {
 	Name string `bson:"name" json:"name"`
-	Data string `bson:"data" json:"data"`
+	Data any    `bson:"data" json:"data"`
 }
 
 type JsonResponse struct {
@@ -51,7 +51,7 @@ func (app *Config) ReadJson(w http.ResponseWriter, r *http.Request, data any) er
 	r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
 	decoder := json.NewDecoder(r.Body)
 
-	err := decoder.Decode(r.Body)
+	err := decoder.Decode(data)
 	if err != nil {
 		return fmt.Errorf(`something wrong decoding body :%v \n`, err)
 	}
@@ -96,6 +96,7 @@ func (app *Config) WriteLog(w http.ResponseWriter, r *http.Request) error {
 	jsonPayload := new(JsonPayload)
 
 	err := app.ReadJson(w, r, jsonPayload)
+	fmt.Println("json payload", jsonPayload)
 	if err != nil {
 		return err
 	}

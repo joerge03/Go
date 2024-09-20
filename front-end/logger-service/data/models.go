@@ -67,7 +67,7 @@ func (l *LogEntry) All() []*LogEntry {
 		}
 		results = append(results, result)
 	}
-	// err = cursor.All(ctx, &results)
+	// err = cursor. All(ctx, &results)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }

@@ -21,8 +21,5 @@ func (app *Config) routes() http.Handler {
 	r.Use(cors.Handler(handler))
 
 	r.Use(middleware.Heartbeat("/ping"))
-
-	// r.Post("/", app.Broker)
-	// r.Post("/handle", app.handleSubmit)
 	return r
 }

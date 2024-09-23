@@ -135,7 +135,7 @@ func (m *Mail) BuildPlainTextMessage(message Message) (string, error) {
 
 	var tempMessage bytes.Buffer
 
-	err = t.ExecuteTemplate(&tempMessage, "mail.plain.gohtml", message.DataMap)
+	err = t.ExecuteTemplate(&tempMessage, "body", message.DataMap)
 
 	formattedMessage := tempMessage.String()
 	if err != nil {
@@ -154,7 +154,7 @@ func (m *Mail) BuildHTMLMessage(message Message) (string, error) {
 
 	var tempMessage bytes.Buffer
 
-	err = t.ExecuteTemplate(&tempMessage, "mail.html.gohtml", message.DataMap)
+	err = t.ExecuteTemplate(&tempMessage, "plain-body", message.DataMap)
 	if err != nil {
 		return "", err
 	}

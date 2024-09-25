@@ -64,5 +64,13 @@ func (app *Config) SendSMTPMessage(w http.ResponseWriter, r *http.Request) error
 		return fmt.Errorf(`there's something wrong sending SMTP Message : %v\n`, err)
 	}
 
+	resPay := new(JsonResponse)
+	resPay.Error = false
+	resPay.Message = `mail has been successfully sent`
+
+	err = app.writeJSON(w, http.StatusAccepted, resPay)
+	if err != nil {
+		app.ErrorJson(w, err)
+	}
 	return nil
 }

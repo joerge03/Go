@@ -34,7 +34,7 @@ func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) 
 
 	err = dec.Decode(&struct{}{})
 	if err != io.EOF {
-		return errors.New("p lease enter only one JSON")
+		return errors.New("please enter only one JSON")
 	}
 
 	return nil

@@ -63,8 +63,8 @@ func (m *Mail) SendSMTPMessage(message Message) error {
 	server.Username = m.Password
 	server.Encryption = m.getEncryption(m.Encryption)
 	server.KeepAlive = false
-	server.ConnectTimeout = 10 * time.Second
-	server.SendTimeout = 10 * time.Second
+	server.ConnectTimeout = time.Second * 10
+	server.SendTimeout = time.Second * 10
 	smtpClient, err := server.Connect()
 	if err != nil {
 		return fmt.Errorf(`failed to connect to smtp client :%v\n`, err)
@@ -94,32 +94,28 @@ func (m *Mail) SendSMTPMessage(message Message) error {
 	return nil
 }
 
-func (m *Mail) setAttachments(accountMail *mail.Email, attachments []string) error {
+func (m *Mail) setAttachments(email *mail.Email, attachments []string) error {
 	for _, attachment := range attachments {
 		_, err := os.Stat(attachment)
 		if err != nil {
 			return err
 		}
-		accountMail.Attach(&mail.File{FilePath: attachment})
+		email.Attach(&mail.File{FilePath: attachment})
 	}
 	return nil
 }
 
 func (m *Mail) getEncryption(encryption ...string) mail.Encryption {
 	var defaultMail mail.Encryption
-	if len(encryption) > 0 {
-		for _, e := range encryption {
-			switch e {
-			case "ssl":
-				defaultMail = mail.EncryptionSSL
-			case "none":
-				defaultMail = mail.EncryptionNone
-			default:
-				defaultMail = mail.EncryptionSTARTTLS
-			}
+	for _, e := range encryption {
+		switch e {
+		case "ssl":
+			defaultMail = mail.EncryptionSSL
+		case "none":
+			defaultMail = mail.EncryptionNone
+		default:
+			defaultMail = mail.EncryptionSTARTTLS
 		}
-	} else {
-		defaultMail = mail.EncryptionSTARTTLS
 	}
 
 	return defaultMail

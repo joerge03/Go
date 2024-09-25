@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -11,6 +12,15 @@ type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
 	Log    LogPayload  `json:"log,omitempty"`
+	Mail   MailPayload `json:"mail,omitempty"`
+}
+
+type MailPayload struct {
+	From     string `json:"from"`
+	FromName string `json:"fromName"`
+	To       string `json:"to"`
+	Subject  string `json:"subject"`
+	Message  string `json:"message"`
 }
 
 type AuthPayload struct {
@@ -28,7 +38,6 @@ func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
 		Error:   false,
 		Message: "Test broker",
 	}
-
 	app.writeJSON(w, http.StatusOK, payload, r.Header)
 }
 
@@ -42,14 +51,63 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	switch reqPayload.Action {
 	case "auth":
+		fmt.Printf(`auth selected \n`)
 		app.authorize(w, reqPayload.Auth)
 	case "log":
-		fmt.Println("log selected")
+		fmt.Printf(`log selected\n`)
 		app.logIt(w, reqPayload.Log)
+	case "mail":
+		fmt.Printf(`mail selected\n`)
+		app.mailIt(w, reqPayload.Mail)
 	default:
 		app.ErrorJson(w, fmt.Errorf("action not available"))
 	}
 }
+
+func (app *Config) mailIt(w http.ResponseWriter, mailPayload MailPayload) {
+	pay, err := json.MarshalIndent(mailPayload, "", "\t")
+	if err != nil {
+		log.Fatal(err)
+		app.ErrorJson(w, err)
+		return
+	}
+
+	client := &http.Client{}
+	const MailUrl = "http://mail-service/"
+
+	req, err := http.NewRequest("POST", MailUrl, bytes.NewReader(pay))
+	if err != nil {
+		log.Fatal(err)
+		app.ErrorJson(w, err)
+		return
+	}
+	req.Header.Add("Content-Type", "application/type")
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		app.ErrorJson(w, err)
+		return
+	}
+	defer res.Body.Close()
+
+	resData := new(JsonResponse)
+
+	err = json.NewDecoder(res.Body).Decode(resData)
+	if err != nil {
+		log.Fatalf(`There's something wrong decoding the mail: %v\n`, err)
+		app.ErrorJson(w, err)
+		return
+	}
+}
+
+//
+//
+//
+//
+//
+
+//
+//
 
 func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
 	logPayload, err := json.MarshalIndent(pay, "", "\t")

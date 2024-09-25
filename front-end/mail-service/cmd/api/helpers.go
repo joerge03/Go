@@ -15,11 +15,6 @@ type JsonResponse struct {
 	Data    any    `json:"data,omitempty"`
 }
 
-type loginResponse struct {
-	ID    int    `json:"id"`
-	Token string `json:"token"`
-}
-
 func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) error {
 	MaxByte := int64(1048576)
 

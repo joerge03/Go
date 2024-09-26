@@ -100,6 +100,13 @@ func (app *Config) mailIt(w http.ResponseWriter, mailPayload MailPayload) {
 		app.ErrorJson(w, err)
 		return
 	}
+
+	err = app.writeJSON(w, http.StatusAccepted, resData)
+	if err != nil {
+		log.Fatalf(`there's something wrong sending response: %v \n`, err)
+		app.ErrorJson(w, fmt.Errorf(`there's something wrong sending response: %v \n`, err))
+		return
+	}
 }
 
 //

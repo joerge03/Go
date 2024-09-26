@@ -64,8 +64,9 @@
 
           console.log(res)
           const resData = await res.json()
-          payload.innerHTML = JSON.stringify(pay)         
-          received.innerHTML = JSON.stringify(resData)
+          output.innerHTML = JSON.stringify(resData)
+          payload.innerHTML = JSON.stringify(payloadBody)         
+          received.innerHTML = JSON.stringify()
         } catch (err) {
            output.innerHTML = `<br> <h1> Error: </h1> ${error}`  
         }
@@ -99,8 +100,9 @@
           if (resData.error){
             console.log("there is something wrong fetching log")            
           }
+            output.innerHTML = resData
           payload.innerHTML = JSON.stringify(pay, undefined, 4)
-          received.innerHTML = JSON.stringify(data)     
+          received.innerHTML = JSON.stringify(resData)     
         } catch (err) {
             output.innerHTML = `<br> <h1> Error: </h1> ${error}`       
         }       

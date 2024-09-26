@@ -2,6 +2,7 @@ FROM alpine:latest
 
 RUN mkdir /app
 
-COPY dockerServiceApp /app
+COPY mailServiceApp /app
+COPY template /template
 
-CMD [ "/app/dockerServiceApp" ]
+CMD [ "/app/mailServiceApp" ]

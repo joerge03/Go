@@ -47,6 +47,7 @@ func (app *Config) routes() http.Handler {
 func (app *Config) SendSMTPMessage(w http.ResponseWriter, r *http.Request) error {
 	payLoad := new(MailPayload)
 
+	fmt.Printf(`payload %v \n`, r.Body)
 	err := app.JsonReader(w, r, payLoad)
 	if err != nil {
 		return fmt.Errorf(`there's something wrong reading json: %v\n`, err)

@@ -72,10 +72,12 @@ func (app *Config) mailIt(w http.ResponseWriter, mailPayload MailPayload) {
 		return
 	}
 
+	fmt.Printf(`mail pay : %v \n`, mailPayload)
+
 	client := &http.Client{}
 	const MailUrl = "http://mail-service/"
 
-	req, err := http.NewRequest("POST", MailUrl, bytes.NewReader(pay))
+	req, err := http.NewRequest("POST", MailUrl, bytes.NewBuffer(pay))
 	if err != nil {
 		log.Fatal(err)
 		app.ErrorJson(w, err)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 	"time"
 
@@ -73,7 +74,6 @@ func (m *Mail) SendSMTPMessage(message Message) error {
 	email := mail.NewMSG()
 	email.SetFrom(message.From).
 		AddTo(message.To).SetSubject(message.Subject)
-
 	email = email.SetBody(mail.TextPlain, plainText)
 	email.AddAlternative(mail.TextHTML, formattedMessage)
 
@@ -131,7 +131,7 @@ func (m *Mail) BuildPlainTextMessage(message Message) (string, error) {
 
 	var tempMessage bytes.Buffer
 
-	err = t.ExecuteTemplate(&tempMessage, "body", message.DataMap)
+	err = t.ExecuteTemplate(&tempMessage, "plain-body", message.DataMap)
 
 	formattedMessage := tempMessage.String()
 	if err != nil {
@@ -143,6 +143,12 @@ func (m *Mail) BuildPlainTextMessage(message Message) (string, error) {
 func (m *Mail) BuildHTMLMessage(message Message) (string, error) {
 	templateLocation := "./template/mail.html.gohtml"
 
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Error getting working directory: %v", err)
+	}
+	fmt.Println("Current working directory:", dir)
+
 	t, err := template.New("email-html").ParseFiles(templateLocation)
 	if err != nil {
 		return "", err
@@ -150,7 +156,7 @@ func (m *Mail) BuildHTMLMessage(message Message) (string, error) {
 
 	var tempMessage bytes.Buffer
 
-	err = t.ExecuteTemplate(&tempMessage, "plain-body", message.DataMap)
+	err = t.ExecuteTemplate(&tempMessage, "body", message.DataMap)
 	if err != nil {
 		return "", err
 	}

@@ -3,48 +3,92 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func failOnError(err error, message string) {
+const (
+	rabbitmqURL = "amqp://guest:guest@localhost:5672/"
+	queueName   = "queue"
+)
+
+func FailOnError(err error, message string) {
 	if err != nil {
 		log.Fatalf(`error: %v , message: %v`, err, message)
 	}
-	fmt.Println("printed out but there's no error")
 }
 
 func main() {
-	const rabbitmqURL = "amqp://guest:guest@localhost:5672/"
-
 	// CONNECT
-	conn, err := amqp.Dial(rabbitmqURL)
-	failOnError(err, "there's something wrong dialing amqp")
+	conn := connect()
 	defer conn.Close()
 
 	// OPEN A CHANNEL
-
 	channel, err := conn.Channel()
-	failOnError(err, `There's something wrong opening a channel`)
+	FailOnError(err, `There's something wrong opening a channel`)
+
+	// DECLARE
 
 	queue, err := channel.QueueDeclare(
-		"queue",
+		queueName,
 		true,
 		false,
 		false,
 		false,
 		nil,
 	)
-	failOnError(err, `there's something wrong with declaring queue`)
+	FailOnError(err, `there's something wrong with declaring queue`)
 
-	messages, err := channel.Consume(
-		queue.Name,
+	err = channel.Publish(
 		"",
-		true,
+		queue.Name,
 		false,
 		false,
-		false,
-		nil,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte("Asdf"),
+		},
 	)
-	failOnError(err, `there's somethings wrong with declaring queue`)
+
+	FailOnError(err, `something wrong with the channel `)
+
+	// Consume
+
+	// messages, err := channel.Consume(
+	// 	queue.Name,
+	// 	"",
+	// 	true,
+	// 	false,
+	// 	false,
+	// 	false,
+	// 	nil,
+	// )
+	// FailOnError(err, `there's somethings wrong with declaring queue`)
+}
+
+func connect() *amqp.Connection {
+	var counts int64
+	var delay time.Duration
+	connection := new(amqp.Connection)
+
+	for {
+		conn, err := amqp.Dial(rabbitmqURL)
+		if err != nil {
+			fmt.Printf(`failed to connect x%v, retrying... `, counts)
+			counts++
+		} else {
+			connection = conn
+			break
+		}
+
+		if counts > 5 {
+			FailOnError(err, `There's something wrong connecting`)
+			return nil
+		}
+		delay = time.Second * time.Duration(math.Pow(float64(counts), 2))
+		time.Sleep(delay)
+	}
+	return connection
 }

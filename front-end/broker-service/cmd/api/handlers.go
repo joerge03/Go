@@ -109,15 +109,6 @@ func (app *Config) mailIt(w http.ResponseWriter, mailPayload MailPayload) {
 	}
 }
 
-//
-//
-//
-//
-//
-
-//
-//
-
 func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
 	logPayload, err := json.MarshalIndent(pay, "", "\t")
 	if err != nil {
@@ -158,16 +149,6 @@ func (app *Config) logIt(w http.ResponseWriter, pay LogPayload) {
 		return
 	}
 }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 	jsonData, err := json.MarshalIndent(pay, "", "\t")

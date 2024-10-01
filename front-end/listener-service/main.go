@@ -6,11 +6,13 @@ import (
 	"math"
 	"time"
 
+	"listener/events"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
-	rabbitmqURL = "amqp://guest:guest@localhost:5672/"
+	rabbitmqURL = "amqp://guest:guest@rabbitmq/"
 	queueName   = "queue"
 )
 
@@ -26,33 +28,25 @@ func main() {
 	defer conn.Close()
 
 	// OPEN A CHANNEL
-	channel, err := conn.Channel()
-	FailOnError(err, `There's something wrong opening a channel`)
+	// channel, err := conn.Channel()
+	// FailOnError(err, `There's something wrong opening a channel`)
 
-	// DECLARE
+	consumer := events.NewConsumer(conn)
 
-	queue, err := channel.QueueDeclare(
-		queueName,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	FailOnError(err, `there's something wrong with declaring queue`)
+	consumer.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
 
-	err = channel.Publish(
-		"",
-		queue.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte("Asdf"),
-		},
-	)
+	// err = channel.Publish(
+	// 	"",
+	// 	queue.Name,
+	// 	false,
+	// 	false,
+	// 	amqp.Publishing{
+	// 		ContentType: "text/plain",
+	// 		Body:        []byte("Asdf"),
+	// 	},
+	// )
 
-	FailOnError(err, `something wrong with the channel `)
+	// FailOnError(err, `something wrong with the channel `)
 
 	// Consume
 
@@ -79,6 +73,7 @@ func connect() *amqp.Connection {
 			fmt.Printf(`failed to connect x%v, retrying... `, counts)
 			counts++
 		} else {
+			fmt.Println("connected to rabbitmq")
 			connection = conn
 			break
 		}

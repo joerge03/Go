@@ -102,12 +102,22 @@ func (c *Consumer) Listen(topics []string) {
 			go handlePayload(*data)
 		}
 	}()
+
+	fmt.Printf(`waiting for the message [%s]`, queue.Name)
 	<-infinite
 }
 
 func handlePayload(payload Payload) {
 	switch payload.Name {
 	case "log", "event":
+
+	case "auth":
+		// Auth here
+		fmt.Println("Selected auth")
+
+	default:
+		logEvent(payload)
+
 	}
 }
 
@@ -116,7 +126,7 @@ func logEvent(pay Payload) {
 
 	FailOnError(err, "theres something wrong using marshal with the data")
 
-	logUrl := "http://authentication-service"
+	logUrl := "http://logger-service/"
 	fmt.Println("payload log it", pay)
 
 	client := http.Client{}

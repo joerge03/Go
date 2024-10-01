@@ -6,7 +6,7 @@ import (
 
 func DeclareExchange(ch *amqp.Channel) {
 	err := ch.ExchangeDeclare(
-		"logs_topic",
+		"log",
 		"topic",
 		true,
 		false,
@@ -19,7 +19,7 @@ func DeclareExchange(ch *amqp.Channel) {
 
 func DeclareRandomQueue(ch *amqp.Channel) amqp.Queue {
 	queue, err := ch.QueueDeclare(
-		"queue",
+		"",
 		true,
 		false,
 		false,

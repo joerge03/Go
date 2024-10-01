@@ -41,7 +41,7 @@ build_listener:
 	cd ../listener-service && env GOOS=linux CGO_ENABLED=0 go build -o ${LISTENERS_BINARY} ./
 	@echo "Done!"
 
-build_mail:
+build_mail: 
 	@echo "Building mail service..."
 	cd ../mail-service && env GOOS=linux CGO_ENABLED=0 go build -o ${MAIL_BINARY} ./cmd/api 
 	@echo "Done"

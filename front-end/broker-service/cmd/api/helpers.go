@@ -20,6 +20,12 @@ type loginResponse struct {
 	Token string `json:"token"`
 }
 
+func FailOnError(err error, message string) {
+	if err != nil {
+		log.Panicf(`%v : %v`, message, err)
+	}
+}
+
 func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) error {
 	MaxByte := int64(1048576)
 

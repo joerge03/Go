@@ -114,10 +114,8 @@ func handlePayload(payload Payload) {
 	case "auth":
 		// Auth here
 		fmt.Println("Selected auth")
-
 	default:
 		logEvent(payload)
-
 	}
 }
 

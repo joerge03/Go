@@ -110,7 +110,7 @@ func (c *Consumer) Listen(topics []string) {
 func handlePayload(payload Payload) {
 	switch payload.Name {
 	case "log", "event":
-
+		// NOTHING YET
 	case "auth":
 		// Auth here
 		fmt.Println("Selected auth")
@@ -127,12 +127,12 @@ func logEvent(pay Payload) {
 	logUrl := "http://logger-service/"
 	fmt.Println("payload log it", pay)
 
-	client := http.Client{}
 	req, err := http.NewRequest("POST", logUrl, bytes.NewBuffer(logPayload))
 	req.Header.Set("Content-Type", "application/json")
 
 	FailOnError(err, `error in making new request in logit`)
 
+	client := http.Client{}
 	res, err := client.Do(req)
 
 	FailOnError(err, `error in client do %v`)

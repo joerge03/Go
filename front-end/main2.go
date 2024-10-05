@@ -66,7 +66,6 @@ func mains() {
 		{Title: "do chore", Description: "test", Done: false},
 		{Title: "play games", Description: "yep", Done: true},
 	}
-
 	template1, err = template.ParseGlob("test/pages/*.html")
 	if err != nil {
 		fmt.Println(err)

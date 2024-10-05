@@ -26,7 +26,8 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	log.Printf("running on port: %v", 8081)
+	// test := 2 / len([]string{"asdf", "23", "asdf", "23", "asdf", "23", "asdf", "23", "23", "23"})
+	// log.Printf(`test sfadf %v`, test)
 	http.HandleFunc("/", handleIndex)
 	err := http.ListenAndServe(":8082", nil)
 	log.Printf("running on port: %vasdfasdfasdf", 8081)

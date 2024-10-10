@@ -30,15 +30,10 @@ func main() {
 		RabbitConn: conn,
 	}
 
-	consumer := events.NewConsumer(conn)
-
-	err := consumer.Setup()
+	consumer, err := events.NewConsumer(conn)
 	if err != nil {
-		FailOnError(err, "there's something wrong setting up")
+		FailOnError(err, "there's something wrong creating a new consumer")
 	}
-
-	err = consumer.Listen([]string{"test", "asdfsadf"})
-	FailOnError(err, "there's something wrong ")
 
 	fmt.Printf("Running on localhost:%v \n", route)
 	fmt.Printf("test%v \n", route)
@@ -51,6 +46,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	err = consumer.Listen([]string{"test", "asdfsadf", "log.INFO"})
+	FailOnError(err, "there's something wrong ")
 }
 
 func connect() *amqp.Connection {

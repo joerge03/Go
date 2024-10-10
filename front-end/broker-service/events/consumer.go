@@ -15,12 +15,17 @@ type Consumer struct {
 	name string
 }
 
-func NewConsumer(conn *amqp.Connection) Consumer {
+func NewConsumer(conn *amqp.Connection) (Consumer, error) {
 	consumer := Consumer{
 		conn: conn,
 	}
 
-	return consumer
+	err := consumer.Setup()
+	if err != nil {
+		return Consumer{}, err
+	}
+
+	return consumer, nil
 }
 
 func (c *Consumer) Setup() error {
@@ -49,8 +54,9 @@ func (c *Consumer) Listen(topics []string) error {
 		return err
 	}
 	defer channel.Close()
-	queue := DeclareRandomQueue(channel)
 
+	queue := DeclareRandomQueue(channel)
+	fmt.Println("random queue name", queue.Name)
 	for _, str := range topics {
 		err := channel.QueueBind(
 			queue.Name,

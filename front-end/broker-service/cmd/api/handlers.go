@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"broker/events"
 )
 
 type RequestPayload struct {
@@ -30,7 +32,7 @@ type AuthPayload struct {
 
 type LogPayload struct {
 	Name string `json:"name"`
-	Data any    `json:"data"`
+	Data string `json:"data"`
 }
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +57,7 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		app.authorize(w, reqPayload.Auth)
 	case "log":
 		fmt.Printf(`log selected\n`)
-		app.logIt(w, reqPayload.Log)
+		app.RabbitMqLogIt(w, reqPayload.Log)
 	case "mail":
 		fmt.Printf(`mail selected\n`)
 		app.mailIt(w, reqPayload.Mail)
@@ -199,4 +201,41 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 		return
 	}
 	defer res.Body.Close()
+}
+
+func (c *Config) RabbitMqLogIt(w http.ResponseWriter, payload LogPayload) error {
+	err := c.pushQueue(payload.Name, payload.Data)
+	if err != nil {
+		return err
+	}
+	resPayload := new(JsonResponse)
+
+	resPayload.Error = false
+	resPayload.Message = "log has been pushed"
+
+	err = c.writeJSON(w, http.StatusAccepted, resPayload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Config) pushQueue(name, message string) error {
+	emitter, err := events.NewEmitter(c.RabbitConn)
+	if err != nil {
+		return err
+	}
+
+	logPayload := LogPayload{
+		Name: name,
+		Data: message,
+	}
+
+	j, _ := json.Marshal(&logPayload)
+
+	err = emitter.Push(string(j), "log.INFO")
+	if err != nil {
+		return err
+	}
+	return nil
 }

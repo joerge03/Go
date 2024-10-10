@@ -40,7 +40,7 @@ func main() {
 	// 	queue.Name,
 	// 	false,
 	// 	false,
-	// 	amqp.Publishing{
+	// 	a mqp.Publishing{
 	// 		ContentType: "text/plain",
 	// 		Body:        []byte("Asdf"),
 	// 	},

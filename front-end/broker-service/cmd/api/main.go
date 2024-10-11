@@ -61,6 +61,8 @@ func connect() *amqp.Connection {
 			count++
 			fmt.Println("error :", err)
 		} else {
+
+			fmt.Println("broker rabbitMQ connected!")
 			connection = conn
 			break
 		}

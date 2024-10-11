@@ -32,7 +32,7 @@ type AuthPayload struct {
 
 type LogPayload struct {
 	Name string `json:"name"`
-	Data string `json:"data"`
+	Data any    `json:"data"`
 }
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
@@ -50,6 +50,7 @@ func (app *Config) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJson(w, err, http.StatusInternalServerError)
 		return
 	}
+	fmt.Printf(`log selected\n`)
 
 	switch reqPayload.Action {
 	case "auth":
@@ -204,8 +205,10 @@ func (app *Config) authorize(w http.ResponseWriter, pay AuthPayload) {
 }
 
 func (c *Config) RabbitMqLogIt(w http.ResponseWriter, payload LogPayload) error {
+	fmt.Println(payload, "payload")
 	err := c.pushQueue(payload.Name, payload.Data)
 	if err != nil {
+		fmt.Println(payload, "run?")
 		return err
 	}
 	resPayload := new(JsonResponse)
@@ -220,7 +223,7 @@ func (c *Config) RabbitMqLogIt(w http.ResponseWriter, payload LogPayload) error 
 	return nil
 }
 
-func (c *Config) pushQueue(name, message string) error {
+func (c *Config) pushQueue(name string, message any) error {
 	emitter, err := events.NewEmitter(c.RabbitConn)
 	if err != nil {
 		return err
@@ -230,8 +233,12 @@ func (c *Config) pushQueue(name, message string) error {
 		Name: name,
 		Data: message,
 	}
+	fmt.Println(logPayload, "log payload")
 
-	j, _ := json.Marshal(&logPayload)
+	j, err := json.MarshalIndent(&logPayload, "", "\t")
+	if err != nil {
+		return err
+	}
 
 	err = emitter.Push(string(j), "log.INFO")
 	if err != nil {

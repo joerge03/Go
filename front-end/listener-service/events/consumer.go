@@ -139,7 +139,7 @@ func logEvent(pay Payload) {
 
 	defer res.Body.Close()
 
-	response := new(authResponse)
+	response := new(any)
 
 	err = json.NewDecoder(res.Body).Decode(response)
 

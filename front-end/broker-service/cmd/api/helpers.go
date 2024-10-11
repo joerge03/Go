@@ -47,7 +47,7 @@ func (app *Config) JsonReader(w http.ResponseWriter, r *http.Request, data any) 
 }
 
 func (app *Config) writeJSON(w http.ResponseWriter, status int, data any, headers ...http.Header) error {
-	fmt.Println(headers)
+	fmt.Println(headers, "headers")
 
 	out, err := json.Marshal(data)
 	if err != nil {

@@ -62,8 +62,8 @@
             throw Error(`There's something wrong getting response from: ${mailURL}`)
           }
 
-          console.log(res)
           const resData = await res.json()
+          console.log(res)
           output.innerHTML = JSON.stringify(resData)
           payload.innerHTML = JSON.stringify(payloadBody)         
           received.innerHTML = JSON.stringify()
@@ -100,7 +100,7 @@
           if (resData.error){
             console.log("there is something wrong fetching log")            
           }
-            output.innerHTML = resData
+          output.innerHTML = JSON.stringify(resData, undefined, 4)
           payload.innerHTML = JSON.stringify(pay, undefined, 4)
           received.innerHTML = JSON.stringify(resData)     
         } catch (err) {

@@ -27,7 +27,7 @@ func init() {
 	flag.StringVar(&portUDP, "port", "80", "port")
 }
 
-func main() {
+func main2() {
 	flag.Parse()
 	addr, err := createAddr(hostUDP, portUDP)
 	if err != nil {
@@ -56,10 +56,8 @@ func main() {
 			fmt.Println("hello")
 			fmt.Println(scanner.Text())
 		}
-
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
 		}
 	}
-
 }

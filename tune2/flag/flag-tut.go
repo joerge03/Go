@@ -58,7 +58,7 @@ func hack(url string, verbose bool) {
 
 	file, _ := os.Create("test.txt")
 
-	fmt.Fprintf(file, "asdf")
+	fmt.Fprint(file, url)
 
 	if verbose {
 		fmt.Println("potek nayan")

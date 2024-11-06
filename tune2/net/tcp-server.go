@@ -23,7 +23,6 @@ func handleConnectionLog(conn net.Conn) {
     c := make(chan []byte)
     go readData(conn,c)
     go writeData(conn,c)
-    
 }
 
 func readData(conn net.Conn, c chan <-  []byte) {
@@ -44,24 +43,23 @@ func readData(conn net.Conn, c chan <-  []byte) {
 func writeData(conn net.Conn, c <-chan  []byte){
     addr :=  conn.RemoteAddr().String()
 
-    var buff []byte
-
-    
+    var buff []byte    
     for {
         // fmt.Println(buff)
         buff = <-c
         w, err := conn.Write(buff)
         if err != nil {
             fmt.Printf("there is a problem writing: %v", err)
-        }        
-        fmt.Printf("Write %v to: %v\n\n addr %v\n", buff , w, addr)
+        }
+        fmt.Printf("Write %v to: %v\n\n addr %v\n", buff , w, addr)  
     }
 }
 
-func main(){
+func main3(){
     flag.Parse()
 
     formattedAddr := net.JoinHostPort(hostServer, portServer)
+    
 
     listener, err := net.Listen("tcp", formattedAddr)
     if err != nil {

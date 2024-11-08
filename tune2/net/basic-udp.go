@@ -14,11 +14,9 @@ var (
 
 func createAddr(host string, port string) (*net.UDPAddr, error) {
 	addr, err := net.ResolveUDPAddr("udp", net.JoinHostPort(host, port))
-
 	if err != nil {
 		return nil, err
 	}
-
 	return addr, nil
 }
 

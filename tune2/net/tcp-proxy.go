@@ -80,10 +80,9 @@ func forwardConnection(conn *net.Conn){
 	go writeSocket(&proxyConn, c2s)
 	go readSocket(conn, s2c)
 	go writeSocket(&proxyConn, s2c)
-
 }
 
-func main(){
+func main3(){
 	flag.Parse()
 	
 	clientAddress := net.JoinHostPort(desIp,desPort)
@@ -93,10 +92,9 @@ func main(){
 	if err != nil {
 		log.Fatalf("there's something wrong connection client, %v\n", err)
 	}
-
 	for {
 		fmt.Println(" ******************** if you connect this to telnet or etc... This will infinitely loop ****************")
-		c, err := listener.Accept() 
+		c, err := listener.Accept()
 		if err == io.EOF  {
 			log.Fatalf("closed from %v\n", c.RemoteAddr().String())
 		}
@@ -104,9 +102,6 @@ func main(){
 			log.Fatalf("there's something wrong connectiong to %v\n", c.RemoteAddr().String())
 		}
 		fmt.Println("Client address", clientAddress)
-
-		
-
 		go forwardConnection(&c)
-	} 
+	}
 }

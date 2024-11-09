@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"os"
@@ -16,9 +16,11 @@ var (
 	ip, port,username,password string
 )
 
+var pubKey ssh.PublicKey
+
 func init(){
-	flag.StringVar(&ip, "ip", "127.0.0.1", "ip")
-	flag.StringVar(&port, "port", "127.0.0.1", "port")
+	flag.StringVar(&ip, "ip", "linuxzoo.net", "ip")
+	flag.StringVar(&port, "port", "22", "port")
 	flag.StringVar(&username, "username", "", "username")
 	flag.StringVar(&password, "password", "", "password")
 }
@@ -44,6 +46,7 @@ func hostKeyCallback(path string) ssh.HostKeyCallback{
 	if err != nil {
 		log.Fatalf("There's something wrong to known hosts %v\n", err)
 	}
+	// hostkey :=  ssh.FixedHostKey()
 
 	return file
 }
@@ -52,50 +55,81 @@ func hostKeyCallback(path string) ssh.HostKeyCallback{
 func main(){
 	flag.Parse()
 
-	os.Exit(1)
+	// os.Exit(1)
 
 	addr := net.JoinHostPort(ip, port)
 
-	config := ssh.ClientConfig{
-		User: "proxy",
+	// fmt.Println(addr, "port")
+
+	config := &ssh.ClientConfig{
+		User: "root",
 		Auth: []ssh.AuthMethod{
-			publicKeyAuth("~/Desktop/privateSecret"),
+			ssh.Password("secure"),
+			publicKeyAuth("./../../../../privateSecret"),
 		},
 		// HostKeyCallback:hostKeyCallback("~/.ssh/known_hosts"),
 		HostKeyCallback:ssh.InsecureIgnoreHostKey(),
+		// HostKeyCallback: ssh.FixedHostKey(pubKey),
 	}
 
-	if len(username) < 1 {
-		fmt.Println("-username is empty or unused")
-		os.Exit(2)
-	}
+	// if len(username) < 1 {
+	// 	fmt.Println("-username is empty or unused")
+	// 	os.Exit(2)
+	// }
 
-	client, err := ssh.Dial("tcp",addr,&config)
-
+	client, err := ssh.Dial("tcp",addr,config)
 	if err != nil {
-		log.Fatalf("There's something wrong with connection %v\n", err)
+		log.Fatalf("There's something wrong with connection, %v\n", err)
 	}
-
 	defer client.Close()
 
 	
 
 	session, err := client.NewSession()
-
 	if err != nil {
 		log.Fatalf("There's something wrong with client session %v\n", err)
 	}
 
-	// session.Stdin = os.Stdin
-	session.Stdout = os.Stdout
+	//////////////////////
+	reader, writer, _:= os.Pipe()
+
+	// writer = os.Stdout
+	// oldStd := 
+	
+	// session.Stdout = os.Stdout
+
+	out, err  := session.StdoutPipe()
+	if err != nil {
+		log.Fatalf("asdf")
+	}
+		
+	 outStdout := make([]byte , 2048)  
+	 go func(){
+		outScan := bufio.NewScanner(out)
+		// outStdout = []byte{}
+
+		for{
+			 if outScan.Scan() {
+				
+				 fmt.Printf("out %s\n", outStdout)		
+				 os.Stdout.Write([]byte(fmt.Sprintf("%v\n",  outScan.Text())))
+				//  fmt.Printf("teststset, %v\n",)
+			 }
+		}
+	}()
+
 	session.Stderr = os.Stderr
-
+	
+	
+	
 	input, err := session.StdinPipe()
-
-
+	
+	
 	if err != nil {
 		log.Fatalf("there's something wrong with the stdin pipe %v\n", err)
 	}
+	
+	
 
 	termModes := ssh.TerminalModes{
 		ssh.ECHO:0 ,
@@ -103,7 +137,6 @@ func main(){
 
 
 	err = session.RequestPty("vt220", 40,80,termModes)
-
 	if err != nil {
 		log.Fatalf("can't proceed due to error, %v\n", err)
 	}
@@ -113,10 +146,41 @@ func main(){
 	if err != nil {
 		log.Fatalf("there' something wrong with the session shell %v\n", err)
 	}
+	// readsTo := bufio.NewReader(os.Stdin)
+	
+	// writer := bufio.NewWriter(input)
 
+	
+	writer.Write([]byte("test"))
+
+	
+	
+	scanner := bufio.NewScanner(os.Stdin)
+	outScanner := bufio.NewScanner(reader)
 	for {
-		io.Copy(input,os.Stdin)
-	}
+		fmt.Printf(" writer %v \n ", outScanner.Text())
+		// fmt.Printf("test %v \n ", outStdout)
+		// fmt.Printf("\ntestststst %v \n ", outScanner.Text())
+		// fmt.Printf("%s <--- \n", buff.String())
 
 		
+		
+		if scanner.Scan(){
+			
+			// s,err := os.Stdout.Write(str)
+			
+			// fmt.Printf("\n%v\n", outScanner.Text())
+			if err != nil {
+				log.Fatalf("there's something wrong with the stdout, %v\n", err)
+			}
+			input.Write([]byte(fmt.Sprintf("%v\n", scanner.Text())))		
+			// outStdout= []byte("")
+		}
+	}
+	
+	// for {
+	// 	fmt.Println("success")
+	// 	io.Copy(input, os.Stdin)
+	// }
+
 }

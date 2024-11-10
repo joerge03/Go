@@ -59,7 +59,7 @@ func writeData(conn net.Conn, c <-chan  []byte){
         _, err := conn.Write(buff)
 
         if err == io.EOF {
-            fmt.Printf("addr %v has been closed, ", addr)
+                      fmt.Printf("addr %v has been closed, ", addr)
             
         }
         if err != nil {

@@ -15,7 +15,7 @@ var (
 	ip, port, username, cmd, password string
 )
 
-var pubKey ssh.PublicKey
+var PubKey ssh.PublicKey
 
 func init() {
 	flag.StringVar(&ip, "ip", "linuxzoo.net", "ip")
@@ -41,16 +41,14 @@ func publicKeyAuth(path string) ssh.AuthMethod {
 
 func hostKeyCallback(path string) ssh.HostKeyCallback {
 	file, err := knownhosts.New(path)
-
 	if err != nil {
 		log.Fatalf("There's something wrong to known hosts %v\n", err)
 	}
 	// hostkey :=  ssh.FixedHostKey()
-
 	return file
 }
 
-func main() {
+func main1() {
 	flag.Parse()
 
 	// os.Exit(1)
@@ -90,6 +88,8 @@ func main() {
 
 	defer session.Close()
 
+	///////////////////////////////////////////////////////
+
 	o, err := session.CombinedOutput(cmd)
 
 	if err != nil {
@@ -97,6 +97,8 @@ func main() {
 	}
 
 	fmt.Printf("This bish %s\n", o)
+
+	///////////////////////////////////////////////////////
 
 	// reader, writer, _ := os.Pipe()
 

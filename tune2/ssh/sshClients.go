@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	ip, port, username, cmd, password string
+	ip, port, username1, cmd, password1 string
 )
 
 var PubKey ssh.PublicKey
@@ -88,7 +89,7 @@ func main1() {
 
 	defer session.Close()
 
-	///////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////
 
 	o, err := session.CombinedOutput(cmd)
 
@@ -98,67 +99,67 @@ func main1() {
 
 	fmt.Printf("This bish %s\n", o)
 
-	///////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////
 
 	// reader, writer, _ := os.Pipe()
 
-	// writer = os.Stdout
-	// oldStd :=
+	//  os.Stdout
+	// oldStd := 
 
-	// session.Stdout = os.Stdout
+	session.Stdout = os.Stdout
 
-	// out, err := session.StdoutPipe()
-	// if err != nil {
-	// 	log.Fatalf("asdf")
-	// }
+	out, err := session.StdoutPipe()
+	if err != nil {
+		log.Fatalf("asdf")
+	}
 
-	// // outScan := bufio.NewScanner(out)
-	// go func() {
-	// 	// var outStdout []byte
-	// 	// readerOut := bufio.NewReader(out)
-	// 	// outStdout = []byte{}
-	// 	testing := make([]byte, 5000)
-	// 	for {
-	// 		bufRes, _ := out.Read(testing)
-	// 		// toStr := fmt.Sprintf("%s",)
-	// 		os.Stdout.Write(testing[:bufRes])
-	// 		//  fmt.Printf("teststset, %v\n",)
-	// 	}
-	// }()
+	// outScan := bufio.NewScanner(out)
+	go func() {
+		// var outStdout []byte
+		// readerOut := bufio.NewReader(out)
+		// outStdout = []byte{}
+		testing := make([]byte, 5000)
+		for {
+			bufRes, _ := out.Read(testing)
+			// toStr := fmt.Sprintf("%s",)
+			os.Stdout.Write(testing[:bufRes])
+			//  fmt.Printf("teststset, %v\n",)
+		}
+	}()
 
-	// session.Stderr = os.Stderr
-	// input, err := session.StdinPipe()
+	session.Stderr = os.Stderr
+	input, err := session.StdinPipe()
 
-	// if err != nil {
-	// 	log.Fatalf("there's something wrong with the stdin pipe %v\n", err)
-	// }
+	if err != nil {
+		log.Fatalf("there's something wrong with the stdin pipe %v\n", err)
+	}
 
-	// termModes := &ssh.TerminalModes{
-	// 	ssh.ECHO: 0,
-	// }
+	termModes := &ssh.TerminalModes{
+		ssh.ECHO: 0,
+	}
 
-	// err = session.RequestPty("vt220", 40, 80, *termModes)
-	// if err != nil {
-	// 	log.Fatalf("can't proceed due to error, %v\n", err)
-	// }
+	err = session.RequestPty("vt220", 40, 80, *termModes)
+	if err != nil {
+		log.Fatalf("can't proceed due to error, %v\n", err)
+	}
 
-	// err = session.Shell()
-	// if err != nil {
-	// 	log.Fatalf("there' something wrong with the session shell %v\n", err)
-	// }
-	// // writer.Write([]byte("test"))
+	err = session.Shell()
+	if err != nil {
+		log.Fatalf("there' something wrong with the session shell %v\n", err)
+	}
+	// writer.Write([]byte("test"))
 
-	// scanner := bufio.NewScanner(os.Stdin)
-	// // outScanner := bufio.NewScanner(reader)
-	// for {
-	// 	// fmt.Printf(" writer %v \n ", outScanner.Text())
-	// 	if scanner.Scan() {
-	// 		if err != nil {
-	// 			log.Fatalf("there's something wrong with the stdout, %v\n", err)
-	// 		}
-	// 		input.Write([]byte(fmt.Sprintf("%v\n", scanner.Text())))
-	// 	}
-	// }
+	scanner := bufio.NewScanner(os.Stdin)
+	// outScanner := bufio.NewScanner(reader)
+	for {
+		// fmt.Printf(" writer %v \n ", outScanner.Text())
+		if scanner.Scan() {
+			if err != nil {
+				log.Fatalf("there's something wrong with the stdout, %v\n", err)
+			}
+			input.Write([]byte(fmt.Sprintf("%v\n", scanner.Text())))
+		}
+	}
 
 	// for {
 	// 	fmt.Println("success")

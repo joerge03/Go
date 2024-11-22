@@ -87,7 +87,7 @@ func main3() {
 		log.Fatalf("there's something wrong connection client, %v\n", err)
 	}
 	for {
-		fmt.Println(" ******************** if you connect this to telnet or etc... This will infinitely loop ****************")
+		fmt.Println("******************** if you connect this to telnet or etc... This will infinitely loop ********************")
 		c, err := listener.Accept()
 		if err == io.EOF {
 			log.Fatalf("closed from %v\n", c.RemoteAddr().String())

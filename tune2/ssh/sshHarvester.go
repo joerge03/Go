@@ -134,6 +134,7 @@ func (servers *SSHServers) String() string{
 	*serverString, err = ToJSON(*servers, true)
 	if err != nil{		
 		for _, server := range *servers {
+			fmt.Println("updateing servers")
 			*serverString += fmt.Sprintf("%+v\n%s\n", server, strings.Repeat("-",30))
 		}
 	}
@@ -167,7 +168,6 @@ func IsUserAuthority(s *SSHServer) IsUserAuthorityCallback{
 	return func(p ssh.PublicKey) bool {
 		return true
 	}
-
 }
 
 // type HostKeyCallbackType func(hostName string, remote net.Addr, key ssh.PublicKey) error 

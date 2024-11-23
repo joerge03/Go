@@ -1,0 +1,74 @@
+[
+	{
+		"Address": "linuxzoo.net:22",
+		"Host": "",
+		"Port": 22,
+		"IsSSH": false,
+		"Banner": "",
+		"Cert": {
+			"Nonce": null,
+			"Key": null,
+			"Serial": 0,
+			"CertType": 0,
+			"KeyId": "",
+			"ValidPrincipals": null,
+			"ValidAfter": 0,
+			"ValidBefore": 0,
+			"CriticalOptions": null,
+			"Extensions": null,
+			"Reserved": null,
+			"SignatureKey": null,
+			"Signature": null
+		},
+		"HostName": "linuxzoo.net",
+		"PublicKey": null
+	},
+	{
+		"Address": "test.rebex.net:22",
+		"Host": "",
+		"Port": 22,
+		"IsSSH": false,
+		"Banner": "",
+		"Cert": {
+			"Nonce": null,
+			"Key": null,
+			"Serial": 0,
+			"CertType": 0,
+			"KeyId": "",
+			"ValidPrincipals": null,
+			"ValidAfter": 0,
+			"ValidBefore": 0,
+			"CriticalOptions": null,
+			"Extensions": null,
+			"Reserved": null,
+			"SignatureKey": null,
+			"Signature": null
+		},
+		"HostName": "test.rebex.net",
+		"PublicKey": null
+	},
+	{
+		"Address": "127.0.0.1:22",
+		"Host": "",
+		"Port": 22,
+		"IsSSH": false,
+		"Banner": "",
+		"Cert": {
+			"Nonce": null,
+			"Key": null,
+			"Serial": 0,
+			"CertType": 0,
+			"KeyId": "",
+			"ValidPrincipals": null,
+			"ValidAfter": 0,
+			"ValidBefore": 0,
+			"CriticalOptions": null,
+			"Extensions": null,
+			"Reserved": null,
+			"SignatureKey": null,
+			"Signature": null
+		},
+		"HostName": "127.0.0.1",
+		"PublicKey": null
+	}
+]

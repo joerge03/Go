@@ -59,8 +59,8 @@ func writeData(conn net.Conn, c <-chan []byte) {
 
 		if err == io.EOF {
 			fmt.Printf("addr %v has been closed, ", addr)
-
 		}
+		
 		if err != nil {
 			fmt.Printf("there is a problem writing: %v", err)
 			break

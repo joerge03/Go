@@ -134,6 +134,7 @@ func (servers *SSHServers) String() string{
 	*serverString, err = ToJSON(*servers, true)
 	if err != nil{		
 		for _, server := range *servers {
+			fmt.Println("updateing servers")
 			*serverString += fmt.Sprintf("%+v\n%s\n", server, strings.Repeat("-",30))
 		}
 	}
@@ -167,7 +168,6 @@ func IsUserAuthority(s *SSHServer) IsUserAuthorityCallback{
 	return func(p ssh.PublicKey) bool {
 		return true
 	}
-
 }
 
 // type HostKeyCallbackType func(hostName string, remote net.Addr, key ssh.PublicKey) error 
@@ -245,11 +245,10 @@ func (s *SSHServer) discover(){
 		logSSH.Println("error ", err)
 		return
 	}
-	c.Close()
-	
+	c.Close()	
 }
 
-func main() {
+func main3() {
 
 	// certC := ssh.ClientConfig{
 	// 	HostKeyCallback: ,
@@ -297,18 +296,14 @@ func main() {
 		file, err := os.OpenFile(out,os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 		if err != nil {
-			log.Panicf("can't open file", err)
+			log.Panicf("can't open file, %v", err)
 		}
 		defer file.Close()
-
 		// writer := bufio.NewWriter(file)
-
 		formattedServers := servers.String()
 		
 		_,err = file.WriteString(formattedServers)
 
 		fmt.Printf("err write %v\n", err)
-	}
-
-	
+	}	
 }

@@ -28,8 +28,8 @@ func init(){
 	flag.Uint64Var(&from, "f", 1, "(-f) is port from and can be combined with (-t, -to)")
 	flag.Uint64Var(&from, "from", 1, "(-from) is port from and can be combined with (-t, -to)")
 
-	flag.Uint64Var(&to, "t", 65535, "(-t) is port to and can be combined with (-f, -from)")
-	flag.Uint64Var(&to, "to", 65535, "(-to) is port to and can be combined with (-f, -from)")
+	flag.Uint64Var(&to, "t", 100, "(-t) is port to and can be combined with (-f, -from)")
+	flag.Uint64Var(&to, "to", 100, "(-to) is port to and can be combined with (-f, -from)")
 
 	flag.StringVar(&address, "a", "", "(-a, -address) XD")
 	flag.StringVar(&address, "address", "", "(-a, -address) you know this man, cmon")

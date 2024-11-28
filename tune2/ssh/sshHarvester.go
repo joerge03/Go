@@ -299,9 +299,7 @@ func main3() {
 			log.Panicf("can't open file, %v", err)
 		}
 		defer file.Close()
-
 		// writer := bufio.NewWriter(file)
-
 		formattedServers := servers.String()
 		
 		_,err = file.WriteString(formattedServers)

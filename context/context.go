@@ -41,14 +41,13 @@ func main() {
 	// Mainloop:
 	for {
 		select {
-		case test := <-webServer:
-			fmt.Println(test)
+		case sdf := <-webServer:
+			fmt.Println(sdf)
 		case test := <-microServices:
 			fmt.Println(test)
 		case test := <-database:
 			fmt.Println(test)
 			// fmt.Println("asdf")
-
 			// case test := <-database:
 			// 	fmt.Println(test)
 		}

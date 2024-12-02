@@ -38,13 +38,14 @@ func main(){
 		log.Panic(err)
 	}
 
+	
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-
 	c := make(chan string, 4096)
 	strings := []string{}
-	openPorts := new([]string)
+	openPorts := []string{}
 
 	for scanner.Scan() {
 		c <- scanner.Text()
@@ -78,7 +79,7 @@ func main(){
 		
 		for _,addr := range strings {
 			wg.Add(1)
-			go scan(addr, openPorts)
+			go scan(addr, &openPorts)
 		}
 		wg.Wait()
 		

@@ -20,12 +20,11 @@ func NewFlusher(conn *net.Conn) *Flusher{
 	return &Flusher{w: bufio.NewWriter(*conn)}
 }
 
-func (f *Flusher) Flush(b []byte) (int, error){
+func (f *Flusher) Write(b []byte) (int, error){
 	i, err := f.w.Write(b)
 	if err != nil {
 		return -1, err
-	}
-	
+	}	
 	err = f.w.Flush()
 	
 	if err != nil {
@@ -64,7 +63,7 @@ func Handle(c *net.Conn, stdout *os.File) {
 	
 	 cmd.Stdin = *c
 	// cmd.Stdin = *c
-	// cmd.Stdout = NewFlusher(c).w
+	// cmd.Stdout = NewFlusher(c)
 	cmd.Stdout = wp
 	
 	go io.Copy(w,rp)
@@ -73,8 +72,9 @@ func Handle(c *net.Conn, stdout *os.File) {
 	
 	// fmt.Println(n, "bytes")
 	
-	err := cmd.Run()
+	
 	fmt.Println("run")
+	err := cmd.Run()
 	defer (*c).Close()
 
 	if err != nil {
@@ -83,12 +83,13 @@ func Handle(c *net.Conn, stdout *os.File) {
 }
 
 
-func main(){
+func main3(){
 
 	l, err := net.Listen("tcp", "127.0.0.1:8082") 
 	if err!= nil {
 		log.Fatal(err)
 	}
+
 	for {
 		c,err := l.Accept()
 		if err != nil {

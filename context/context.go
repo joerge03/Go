@@ -33,7 +33,7 @@ func main() {
 	database := sampleOperation(ctx, "database", 500)
 
 	go func() {
-		fmt.Println("go func cancel ")
+		fmt.Println("go func cancel")
 		time.Sleep(500 * time.Millisecond)
 		cancel()
 	}()

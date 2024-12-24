@@ -13,9 +13,7 @@ func NewClient(key string) *Client{
 	return &Client{
 		API_KEY: key,
 	}
-} 
-
-
+}
 
 func (c *Client) APIInfo() {
 	fmt.Printf("api key %v",c.API_KEY)
@@ -39,15 +37,27 @@ func (c *Client) APIInfo() {
 	if err != nil {
 		log.Panic(err)
 	}
-	
-
-	
-
 	// test := json.Unmarshal(data,&data)
 
 	fmt.Printf("resutl: %+v\n", string(marshalledData))	
 }
 
 func (c *Client) HostSearch(){
-	
+	hostLink := fmt.Sprintf("%v/shodan/host/search?key=%v&query=product:nginx&facets=country", SHODAN_URL,c.API_KEY)
+
+	res, err := http.Get(hostLink)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer res.Body.Close()	
+	data := new(any)
+	err = json.NewDecoder(res.Body).Decode(&data)
+	if err != nil {
+		log.Panic(err)
+	}
+	formattedJsonData, err  := json.MarshalIndent(data,"","\t")
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Printf("%+v\n", string(formattedJsonData))
 }

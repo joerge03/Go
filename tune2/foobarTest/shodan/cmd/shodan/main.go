@@ -25,7 +25,7 @@ func main(){
 
 	c := NewClient(os.Getenv("SHODAN_API_KEY"))
 
-	c.APIInfo()
+	c.HostSearch()
 	
 	// s,err := shodan.GetClient(API_KEY_SHODAN,client,false)
 

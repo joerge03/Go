@@ -20,12 +20,11 @@ func NewFlusher(conn *net.Conn) *Flusher{
 	return &Flusher{w: bufio.NewWriter(*conn)}
 }
 
-func (f *Flusher) Flush(b []byte) (int, error){
+func (f *Flusher) Write(b []byte) (int, error){
 	i, err := f.w.Write(b)
 	if err != nil {
 		return -1, err
-	}
-	
+	}	
 	err = f.w.Flush()
 	
 	if err != nil {
@@ -55,7 +54,7 @@ func Handle(c *net.Conn, stdout *os.File) {
 	
 	// os.std
 	// r := io.MultiReader(*c,,rp)
-	w := io.MultiWriter(*c, stdout,)
+	w := io.MultiWriter(*c)
 	
 	
 	
@@ -64,7 +63,7 @@ func Handle(c *net.Conn, stdout *os.File) {
 	
 	 cmd.Stdin = *c
 	// cmd.Stdin = *c
-	// cmd.Stdout = NewFlusher(c).w
+	// cmd.Stdout = NewFlusher(c)
 	cmd.Stdout = wp
 	
 	go io.Copy(w,rp)
@@ -73,6 +72,8 @@ func Handle(c *net.Conn, stdout *os.File) {
 	
 	// fmt.Println(n, "bytes")
 	
+	
+	fmt.Println("run")
 	err := cmd.Run()
 	defer (*c).Close()
 
@@ -82,27 +83,25 @@ func Handle(c *net.Conn, stdout *os.File) {
 }
 
 
-func main(){
+func main3(){
 
-	l, err := net.Dial("tcp", "127.0.0.1:8082") 
+	l, err := net.Listen("tcp", "127.0.0.1:8082") 
 	if err!= nil {
 		log.Fatal(err)
-	}	
-	// for {
-		// c,err := l.Accept()
-		// if err != nil {
-		// 	log.Panic(err)
-		// }
-		fmt.Println(l.RemoteAddr())
-		Handle(&l,os.Stdout)
-	// }
+	}
+
+	for {
+		c,err := l.Accept()
+		if err != nil {
+			log.Panic(err)
+		}
+		fmt.Println(c.RemoteAddr())
+		Handle(&c,os.Stdout)
+	}
 
 	// cmd.Stdout = NewFlusher(&conn).w
 
-
-	// buffedOutData := make([]byte, 2049) 
-
-	
+	// buffedOutData := make([]byte, 2049) 	
 	
 	// b, err := conn.Read(buffedOutData)
 	// if err != nil {
@@ -111,11 +110,6 @@ func main(){
 	
 	// reader.Flush(buffedOutData[:b])
 	
-	
 	// cmd.Stdin = conn
-	// cmd.Stdout = conn
-
-	
-
-	
+	// cmd.Stdout = conn	
 }

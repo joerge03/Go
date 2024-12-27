@@ -16,10 +16,10 @@ func main() {
 
 	// }
 
-	mapTest := make(map[string][]int)
+	mapTest := make(map[struct{string}][]int)
 
-	mapTest["sdaf"] = []int{1, 2}
-	mapTest["test"] = []int{3, 4}
+	mapTest[struct{string}{"asdf"}] = []int{1, 2}
+	// mapTest[] = []int{3, 4}
 
 	// mapTest := map[string]int{
 	// 	"asdf": 2,
@@ -30,14 +30,14 @@ func main() {
 	// 	"asdf321": 64823442,
 	// }
 
-	delete(mapTest, "sdaf")
+	// delete(mapTest, "sdaf")
 
-	sdaf, exist := mapTest["sdaf"]
+	sdaf, exist := mapTest[struct{string}{"asdf"}]
 
 	if !exist {
 		fmt.Println("sdaf does not exist")
 	}
-	fmt.Println(sdaf)
+	fmt.Println(sdaf,exist,mapTest)
 	// fmt.Println(exist)
 
 	// for i,key := range mapTest {

@@ -74,7 +74,6 @@ func (app *Config) mailIt(w http.ResponseWriter, mailPayload MailPayload) {
 		app.ErrorJson(w, err)
 		return
 	}
-
 	fmt.Printf(`mail pay : %v \n`, mailPayload)
 
 	client := &http.Client{}

@@ -52,12 +52,9 @@ func handler(i int, s *goquery.Selection){
 }
 
 func main(){
-	if len(os.Args) != 3{
+	if len(os.Args) != 3 {
 		log.Fatal("Missing args, Usage: main.go domain ext")
 	}
-
-	
-
 	domain := os.Args[1]
 	fileType := os.Args[2]
 

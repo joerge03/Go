@@ -17,8 +17,8 @@ type OfficeCoreProperty struct{
 type OfficeAppProperty struct{
 	XMLName xml.Name `xml:"Properties"`
 	Application string `xml:"Application"`	
-	Company string `xml:"Company"`	
-	Version string `xml:"AppVersion"`	
+	Company string `xml:"Company"`
+	Version string `xml:"AppVersion"`
 }
 
 var OfficeVersions = map[string]string{

@@ -21,7 +21,6 @@ type BookDetail struct {
 	Availability string
 	Image string
 	Number_of_reviews float64
-	// Stocks string
 }
 
 type BookDetailInfoMap map[int]string 
@@ -49,8 +48,6 @@ type Books []Book
 
 func removePriceCharacters(s string) float64{
 	regex := regexp.MustCompile(`[^0-9.]`)
-
-	fmt.Println("test price", s)
 	
 	str := ""
 	var result float64
@@ -60,7 +57,6 @@ func removePriceCharacters(s string) float64{
 		fmt.Println("test result", str)
 		result, err = strconv.ParseFloat(str, 64)
 	}
-	// fmt.Println("--------", s, "-------------")
 	if err != nil {
 		fmt.Println(err, "regex err")
 		return 0
@@ -69,18 +65,12 @@ func removePriceCharacters(s string) float64{
 }
 
 func processBooks(s *goquery.Document, book *Book){
-	// fmt.Printf("%v test1 \n", i)
 	descriptionSelector := "html body div div.page_inner div.content div#content_inner article.product_page"
-	// fmt.Println(s.Find("#product_description + p").First().Text(), "first p")
 	book.Description = s.Find("#product_description + p").First().Text()
-	// book.Description = s.Find(fmt.Sprintf("%s p",descriptionSelector)).First().Text()
 
 	BookDetailMap := make(BookDetailInfoMap)
-
-	// fmt.Println(fmt.Sprintf("%s table tbody",descriptionSelector),"test1")
-	s.Find(fmt.Sprintf("%s table tbody tr",descriptionSelector)).Each(func(i int, qs *goquery.Selection){	
+	s.Find(fmt.Sprintf("%s table tbody tr",descriptionSelector)).Each(func(i int, qs *goquery.Selection){
 		value := qs.Find("td").Text()
-		fmt.Println(value,"test1", i)
 		BookDetailMap[i] = value
 	})
 		
@@ -100,13 +90,6 @@ func processBooks(s *goquery.Document, book *Book){
 	book.BookDetail.Number_of_reviews = numberOfReviews
 }
 
-func processDetail(s *goquery.Document, book *Book){
-	// selectionString := "html body div div.page_inner div.content div#content_inner article.product_page div.row"	
-	// s.Find(selectionString).Each(func(i int, qs *goquery.Selection){
-	// 	processBooks(i,qs, book)
-	// })
-	processBooks(s,book)
-}
 
 
 
@@ -114,7 +97,6 @@ func process(i int, s *goquery.Selection, books *Books) {
 	book := new(Book)
 	
 	link, ok := s.Find("div.image_container a").Attr("href")
-	fmt.Println(link, "link")
 	mainLink := fmt.Sprintf("https://books.toscrape.com/catalogue/%s", link)
 	if !ok {
 		fmt.Println("unknown element")
@@ -139,18 +121,18 @@ func process(i int, s *goquery.Selection, books *Books) {
 	}
 	book.Name = title
 	
-	isStock, ok := s.Find("product_price p.instock_availability i.icon-ok").Attr("class")
+	isStock, ok := s.Find("produc1t_price p.instock_availability i.icon-ok").Attr("class")
 	book.InStock = false				
 	if isStock != "icon-ok" || !ok {
 	}else {
 		book.InStock = true
 	}	
-	processDetail(selection,book)
+	processBooks(selection,book)
 	(*books) = append((*books), *book)
 }
 	
 	
-func NewBook(r io.Reader, wg *sync.WaitGroup) (*Books, error){
+func NewBooks(r io.Reader, wg *sync.WaitGroup) (*Books, error){
 	defer wg.Done()
 	books := new(Books)
 	doc, err := goquery.NewDocumentFromReader(r)

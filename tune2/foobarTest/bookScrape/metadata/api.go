@@ -36,15 +36,6 @@ type Book struct {
 
 type Books []Book
 
-// var BookDetailMap = BookDetailInfoMap{
-// 	0:"UPC",
-// 	1:"Product_type",
-// 	2:"Price_excl_tax",
-// 	3:"Price_incl_tax",
-// 	4:"Tax",
-// 	5:"Availability",
-// 	6:"Number_of_reviews",
-// }
 
 func removePriceCharacters(s string) float64{
 	regex := regexp.MustCompile(`[^0-9.]`)
@@ -54,7 +45,6 @@ func removePriceCharacters(s string) float64{
 	var err error
 	if len(s) > 0 {
 		str = regex.ReplaceAllString(s, "")
-		fmt.Println("test result", str)
 		result, err = strconv.ParseFloat(str, 64)
 	}
 	if err != nil {
@@ -62,6 +52,22 @@ func removePriceCharacters(s string) float64{
 		return 0
 	}
 	return result
+}
+
+func (b *BookDetailInfoMap) Populate(book *Book ) {
+	priceEx := removePriceCharacters((*b)[2])
+	priceInc := removePriceCharacters((*b)[3])
+	tax := removePriceCharacters((*b)[4])
+	numberOfReviews := removePriceCharacters((*b)[6])
+	
+	
+	book.BookDetail.UPC = (*b)[0]
+	book.BookDetail.Product_type = (*b)[1]
+	book.BookDetail.Price_excl_tax = priceEx
+	book.BookDetail.Price_incl_tax = priceInc
+	book.BookDetail.Tax = tax
+	book.BookDetail.Availability = (*b)[5]
+	book.BookDetail.Number_of_reviews = numberOfReviews
 }
 
 func processBooks(s *goquery.Document, book *Book){
@@ -73,21 +79,8 @@ func processBooks(s *goquery.Document, book *Book){
 		value := qs.Find("td").Text()
 		BookDetailMap[i] = value
 	})
-		
-	priceEx := removePriceCharacters(BookDetailMap[2])
-	priceInc := removePriceCharacters(BookDetailMap[3])
-	tax := removePriceCharacters(BookDetailMap[4])
-	// numberOfReviews := removePriceCharacters()
-	numberOfReviews := removePriceCharacters(BookDetailMap[6])
 	
-	
-	book.BookDetail.UPC = BookDetailMap[0]
-	book.BookDetail.Product_type = BookDetailMap[1]
-	book.BookDetail.Price_excl_tax = priceEx
-	book.BookDetail.Price_incl_tax = priceInc
-	book.BookDetail.Tax = tax
-	book.BookDetail.Availability = BookDetailMap[5]
-	book.BookDetail.Number_of_reviews = numberOfReviews
+	BookDetailMap.Populate(book)
 }
 
 
@@ -122,15 +115,14 @@ func process(i int, s *goquery.Selection, books *Books) {
 	book.Name = title
 	
 	isStock, ok := s.Find("produc1t_price p.instock_availability i.icon-ok").Attr("class")
-	book.InStock = false				
+	book.InStock = false	
 	if isStock != "icon-ok" || !ok {
 	}else {
 		book.InStock = true
-	}	
+	}
 	processBooks(selection,book)
 	(*books) = append((*books), *book)
 }
-	
 	
 func NewBooks(r io.Reader, wg *sync.WaitGroup) (*Books, error){
 	defer wg.Done()

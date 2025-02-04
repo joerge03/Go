@@ -133,7 +133,6 @@ func logEvent(payload Payload) error {
 	if err != nil {
 		return err
 	}
-
 	client := &http.Client{}
 
 	res, err := client.Do(req)

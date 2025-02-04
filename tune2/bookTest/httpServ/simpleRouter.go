@@ -15,7 +15,7 @@ func (r *Router) ServeHTTP(res http.ResponseWriter, req *http.Request){
 	switch path {
 	case "/a":
 		fmt.Println("you picked a")
-	case "/b": 
+	case "/b":
 		fmt.Println("you picked b")
 	case "/c":
 		fmt.Println("you picked c")

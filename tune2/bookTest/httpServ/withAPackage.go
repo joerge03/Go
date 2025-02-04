@@ -17,13 +17,15 @@ func handleMiddleware(handler http.Handler) http.Handler {
 	})
 }
 
-func main(){
+func main3(){
 	r := mux.NewRouter()
 
-
-	// r.HandleFunc("")
-
-		
+	r.HandleFunc("/test/{id:[a-z]+}",func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		fmt.Println(id)
+	}).Methods("GET")
 	
 	r.Use(handleMiddleware)
+
+	http.ListenAndServe(":8081", r)
 }

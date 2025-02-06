@@ -50,6 +50,11 @@ func main() {
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
 
+	// err = http.ListenAndServe(":8080", r)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// err1 := http.Error`()
 	log.Fatal(http.ListenAndServe(":8080", r))
 
 	// http.ListenAndServe("")

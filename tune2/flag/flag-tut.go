@@ -41,7 +41,7 @@ func init() {
 
 func Permutations(ipList strList, portList strList, c chan<- string) {
 	defer close(c)
-	defer fmt.Println("close")
+	defer fmt.Println("closed")
 
 	for _, ipStr := range ipList {
 		for _, portStr := range portList {

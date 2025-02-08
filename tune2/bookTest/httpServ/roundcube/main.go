@@ -36,7 +36,7 @@ func main() {
 	}
 	defer f.Close()
 	config := zap.NewDevelopmentConfig()
-	config.OutputPaths = []string{"test.txt"}
+	config.OutputPaths = []string{"test.txt", "stdout"}
 	l, err := config.Build()
 	// l, err := zap.NewDevelopment()
 	if err != nil {
@@ -46,10 +46,15 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/login", funcLogHandler(l, login))
+	r.HandleFunc("/login", funcLogHandler(l, login)).Methods("POST")
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
 
+	// err = http.ListenAndServe(":8080", r)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// err1 := http.Error`()
 	log.Fatal(http.ListenAndServe(":8080", r))
 
 	// http.ListenAndServe("")

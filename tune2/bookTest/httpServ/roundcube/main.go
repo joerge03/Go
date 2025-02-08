@@ -36,7 +36,7 @@ func main() {
 	}
 	defer f.Close()
 	config := zap.NewDevelopmentConfig()
-	config.OutputPaths = []string{"test.txt"}
+	config.OutputPaths = []string{"test.txt", "stdout"}
 	l, err := config.Build()
 	// l, err := zap.NewDevelopment()
 	if err != nil {
@@ -46,7 +46,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/login", funcLogHandler(l, login))
+	r.HandleFunc("/login", funcLogHandler(l, login)).Methods("POST")
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("public")))
 

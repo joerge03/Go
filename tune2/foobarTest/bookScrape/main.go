@@ -10,7 +10,6 @@ import (
 
 var wg sync.WaitGroup
 
-
 func proccess(url string, wg *sync.WaitGroup, books *metadata.Books) {
 	res, err := http.Get(url)
 	if err != nil {
@@ -25,13 +24,13 @@ func proccess(url string, wg *sync.WaitGroup, books *metadata.Books) {
 	*books = append(*books, *data...)
 }
 
-func main(){
+func main() {
 	books := new(metadata.Books)
-	for i := 0; i <= 50 ;i++{
+	for i := 0; i <= 50; i++ {
 		wg.Add(1)
 		url := fmt.Sprintf("https://books.toscrape.com/catalogue/page-%d.html", i)
 		go proccess(url, &wg, books)
 	}
 	wg.Wait()
 	fmt.Printf("\n%+v --------\n", books)
-}	
+}

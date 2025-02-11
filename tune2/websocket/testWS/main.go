@@ -37,5 +37,5 @@ func main() {
 		serveWS(hub, w, r)
 	}).Methods("GET", "POST")
 
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8080", r), "http")
 }

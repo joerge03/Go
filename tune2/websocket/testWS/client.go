@@ -29,6 +29,7 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 func (client *Client) readPump() {
@@ -37,7 +38,7 @@ func (client *Client) readPump() {
 		client.Conn.Close()
 	}()
 
-	client.Conn.SetReadLimit(maxMessageSize)
+	// client.Conn.SetReadLimit(maxMessageSize)
 	// client.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	// client.Conn.SetPongHandler(func(appData string) error {
 	// 	fmt.Printf("ping! =%v", appData)
@@ -47,7 +48,9 @@ func (client *Client) readPump() {
 	for {
 		_, message, err := client.Conn.ReadMessage()
 		if err != nil {
+			log.Fatal(err)
 			websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway)
+			return
 		}
 		client.Hub.Broadcast <- message
 	}
@@ -93,6 +96,7 @@ func (client *Client) writePump() {
 }
 
 func serveWS(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	// fmt.Println("serveWS")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)

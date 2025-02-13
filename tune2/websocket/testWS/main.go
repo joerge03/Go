@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,7 +32,6 @@ func main() {
 	r.HandleFunc("/", serveHome).Methods("GET")
 
 	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("test")
 		serveWS(hub, w, r)
 	}).Methods("GET", "POST")
 

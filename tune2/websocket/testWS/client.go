@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -29,29 +31,32 @@ var (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 func (client *Client) readPump() {
 	defer func() {
 		client.Hub.Unregister <- client
+		fmt.Println("close")
 		client.Conn.Close()
 	}()
 
-	// client.Conn.SetReadLimit(maxMessageSize)
-	// client.Conn.SetReadDeadline(time.Now().Add(pongWait))
-	// client.Conn.SetPongHandler(func(appData string) error {
-	// 	fmt.Printf("ping! =%v", appData)
-	// 	return client.Conn.SetReadDeadline(time.Now().Add(pongWait))
-	// })
+	client.Conn.SetReadLimit(maxMessageSize)
+	client.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	client.Conn.SetPongHandler(func(appData string) error {
+		fmt.Printf("ping! =%v\n", appData)
+		return client.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	})
 
 	for {
-		_, message, err := client.Conn.ReadMessage()
+		fmt.Println("Read")
+		_, m, err := client.Conn.ReadMessage()
 		if err != nil {
-			log.Fatal(err)
-			websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure, websocket.CloseInternalServerErr) {
+				log.Panicf("WS Error: %v\n", err)
+			}
 			return
 		}
+		message := bytes.TrimSpace(bytes.Replace(m, newline, space, -1))
 		client.Hub.Broadcast <- message
 	}
 }
@@ -63,6 +68,7 @@ func (client *Client) writePump() {
 		ticker.Stop()
 		client.Conn.Close()
 	}()
+
 	for {
 		select {
 		case message, ok := <-client.Send:
@@ -71,24 +77,25 @@ func (client *Client) writePump() {
 				client.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			wc, err := client.Conn.NextWriter(websocket.TextMessage)
+			ws, err := client.Conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			wc.Write(message)
+			ws.Write(message)
 
 			n := len(client.Send)
 			for i := 0; i < n; i++ {
-				wc.Write(newline)
-				wc.Write(<-client.Send)
+				ws.Write(newline)
+				ws.Write(<-client.Send)
 			}
 
-			if err := wc.Close(); err != nil {
+			if err := ws.Close(); err != nil {
 				return
 			}
 		case <-ticker.C:
+			fmt.Println("ticker")
 			client.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := client.Conn.WriteMessage(websocket.TextMessage, nil); err != nil {
+			if err := client.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
@@ -96,15 +103,16 @@ func (client *Client) writePump() {
 }
 
 func serveWS(hub *Hub, w http.ResponseWriter, r *http.Request) {
-	// fmt.Println("serveWS")
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println(err, "upgrader failed")
 		return
 	}
 
 	client := &Client{Hub: hub, Conn: conn, Send: make(chan []byte, 256)}
 	client.Hub.Register <- client
+
+	// fmt.Printf("%+v\n", client.Hub.Clients)
 
 	go client.readPump()
 	go client.writePump()

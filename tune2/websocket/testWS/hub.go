@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Hub struct {
 	Clients    map[*Client]bool
 	Broadcast  chan []byte
@@ -18,6 +20,7 @@ func newHub() *Hub {
 
 func (hub *Hub) Run() {
 	for {
+		fmt.Printf("%+v\n", hub.Clients)
 		select {
 		case client := <-hub.Register:
 			hub.Clients[client] = true

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
+	"os"
 )
 
 type Todo struct {
@@ -40,37 +42,48 @@ func (p Price) PriceTest() string {
 	return fmt.Sprintf("%.2f", s)
 }
 
+func init() {
+	t := template.Must(template.New("name").Parse("page1"))
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	t1 := template.Must(t.New("page2").Parse("page 2"))
+	// fmt.Printf("%+v\n", t.Templates())
+	// for _, temp := range t.Templates() {
+	// 	fmt.Println(temp)
+	// }
+	log.Fatal("Asdfsdaf")
+	fmt.Printf("%+v\n", t1.Execute(os.Stdout, nil))
+}
+
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	template1.ExecuteTemplate(w, "index.html", price)
-}
-
-func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("running like a billin")
-	var s FormData
-
-	s.email = r.FormValue("email")
-	s.password = r.FormValue("password")
-
-	fmt.Println(s)
-
-	fmt.Printf("email: %v ,password: %v ", s.email, s.password)
-
-	template1.ExecuteTemplate(w, "success.html", nil)
-}
-
-func mains() {
-	// r := gin.Default()
-	price = 3.36
-	todoList = TodoList{
-		{Title: "train to busan", Description: "busan to train", Done: false},
-		{Title: "do chore", Description: "test", Done: false},
-		{Title: "play games", Description: "yep", Done: true},
-	}
-	template1, err = template.ParseGlob("test/pages/*.html")
+	t, err := template.New("name").Parse("page1")
 	if err != nil {
 		fmt.Println(err)
 	}
+	_, err = t.New("page2").Parse("page 2")
+	// fmt.Printf("%+v\n", t.Templates())
+	// for _, temp := range t.Templates() {
+	// 	fmt.Println(temp)
+	// }
+	log.Fatal(t.Execute(os.Stdout, price))
+}
+
+func handleSubmit(w http.ResponseWriter, r *http.Request) {
+	var s FormData
+	s.email = r.FormValue("email")
+	s.password = r.FormValue("password")
+	fmt.Println(s)
+	fmt.Printf("email: %v ,password: %v ", s.email, s.password)
+	template1.ExecuteTemplate(w, "success.html", nil)
+}
+
+func main() {
+	price = 3.36
+	// t, err := template.ParseGlob("test/pages/*.html")
+
 	http.HandleFunc("/", handleHome)
-	http.HandleFunc("/submit", handleSubmit)
+	// log.Fatal()
+	// http.HandleFunc("/submit", handleSubmit)
 	http.ListenAndServe(":8080", nil)
 }

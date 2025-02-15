@@ -35,7 +35,7 @@ var upgrader = websocket.Upgrader{
 
 func (client *Client) readPump() {
 	defer func() {
-		client.Hub.Unregister <- client
+
 		fmt.Println("close")
 		client.Conn.Close()
 	}()
@@ -65,6 +65,7 @@ func (client *Client) writePump() {
 
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
+		client.Hub.Unregister <- client
 		ticker.Stop()
 		client.Conn.Close()
 	}()
@@ -84,7 +85,9 @@ func (client *Client) writePump() {
 			ws.Write(message)
 
 			n := len(client.Send)
+			fmt.Println(n, "length")
 			for i := 0; i < n; i++ {
+				fmt.Println(n, "run!!!!!!!!!!!!!")
 				ws.Write(newline)
 				ws.Write(<-client.Send)
 			}

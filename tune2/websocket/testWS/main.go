@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,6 +29,7 @@ func main() {
 	hub := newHub()
 
 	go hub.Run()
+	fmt.Println("after run")
 
 	r.HandleFunc("/", serveHome).Methods("GET")
 
@@ -35,5 +37,6 @@ func main() {
 		serveWS(hub, w, r)
 	}).Methods("GET", "POST")
 
+	fmt.Println("after run")
 	log.Fatal(http.ListenAndServe(":8080", r), "http")
 }

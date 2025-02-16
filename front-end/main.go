@@ -16,12 +16,14 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	Template.ExecuteTemplate(w, "index.html", nil)
 }
 
-func main2() {
+func main() {
 	Template, err = template.ParseGlob("test/pages/*.html")
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	http.HandleFunc("/", handleIndex)
+
 	err := http.ListenAndServe(":8082", nil)
 	log.Printf("running on port: %vasdfasdfasdf", 8081)
 	if err != nil {

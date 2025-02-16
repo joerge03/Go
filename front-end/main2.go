@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
-	"os"
 )
 
 type Todo struct {
@@ -42,31 +40,31 @@ func (p Price) PriceTest() string {
 	return fmt.Sprintf("%.2f", s)
 }
 
-func init() {
-	t := template.Must(template.New("name").Parse("page1"))
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	t1 := template.Must(t.New("page2").Parse("page 2"))
-	// fmt.Printf("%+v\n", t.Templates())
-	// for _, temp := range t.Templates() {
-	// 	fmt.Println(temp)
-	// }
-	log.Fatal("Asdfsdaf")
-	fmt.Printf("%+v\n", t1.Execute(os.Stdout, nil))
-}
+// func init() {
+// 	t := template.Must(template.New("name").Parse("page1"))
+// 	// if err != nil {
+// 	// 	fmt.Println(err)
+// 	// }
+// 	t1 := template.Must(t.New("page2").Parse("page 2"))
+// 	// fmt.Printf("%+v\n", t.Templates())
+// 	// for _, temp := range t.Templates() {
+// 	// 	fmt.Println(temp)
+// 	// }
+// 	fmt.Printf("%+v\n", t1.Execute(os.Stdout, nil))
+// }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	t, err := template.New("name").Parse("page1")
-	if err != nil {
-		fmt.Println(err)
-	}
-	_, err = t.New("page2").Parse("page 2")
+
+	// _, err = t.New("page2").Parse("page 2")
 	// fmt.Printf("%+v\n", t.Templates())
 	// for _, temp := range t.Templates() {
 	// 	fmt.Println(temp)
 	// }
-	log.Fatal(t.Execute(os.Stdout, price))
+	// t1 := template.Must(t.New("test1").Parse("test/pages/index.html"))
+	// if err != nil {
+	// 	log.Panic(err, "Errr")
+	// }
+	template1.Execute(w, price)
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
@@ -78,10 +76,13 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	template1.ExecuteTemplate(w, "success.html", nil)
 }
 
-func main() {
+func main2() {
 	price = 3.36
 	// t, err := template.ParseGlob("test/pages/*.html")
 
+	t := template.Must(template.New("main").ParseGlob("test/pages/*.html"))
+
+	template1 = t
 	http.HandleFunc("/", handleHome)
 	// log.Fatal()
 	// http.HandleFunc("/submit", handleSubmit)

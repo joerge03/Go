@@ -40,37 +40,51 @@ func (p Price) PriceTest() string {
 	return fmt.Sprintf("%.2f", s)
 }
 
+// func init() {
+// 	t := template.Must(template.New("name").Parse("page1"))
+// 	// if err != nil {
+// 	// 	fmt.Println(err)
+// 	// }
+// 	t1 := template.Must(t.New("page2").Parse("page 2"))
+// 	// fmt.Printf("%+v\n", t.Templates())
+// 	// for _, temp := range t.Templates() {
+// 	// 	fmt.Println(temp)
+// 	// }
+// 	fmt.Printf("%+v\n", t1.Execute(os.Stdout, nil))
+// }
+
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	template1.ExecuteTemplate(w, "index.html", price)
+
+	// _, err = t.New("page2").Parse("page 2")
+	// fmt.Printf("%+v\n", t.Templates())
+	// for _, temp := range t.Templates() {
+	// 	fmt.Println(temp)
+	// }
+	// t1 := template.Must(t.New("test1").Parse("test/pages/index.html"))
+	// if err != nil {
+	// 	log.Panic(err, "Errr")
+	// }
+	template1.Execute(w, price)
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("running like a billin")
 	var s FormData
-
 	s.email = r.FormValue("email")
 	s.password = r.FormValue("password")
-
 	fmt.Println(s)
-
 	fmt.Printf("email: %v ,password: %v ", s.email, s.password)
-
 	template1.ExecuteTemplate(w, "success.html", nil)
 }
 
-func mains() {
-	// r := gin.Default()
+func main2() {
 	price = 3.36
-	todoList = TodoList{
-		{Title: "train to busan", Description: "busan to train", Done: false},
-		{Title: "do chore", Description: "test", Done: false},
-		{Title: "play games", Description: "yep", Done: true},
-	}
-	template1, err = template.ParseGlob("test/pages/*.html")
-	if err != nil {
-		fmt.Println(err)
-	}
+	// t, err := template.ParseGlob("test/pages/*.html")
+
+	t := template.Must(template.New("main").ParseGlob("test/pages/*.html"))
+
+	template1 = t
 	http.HandleFunc("/", handleHome)
-	http.HandleFunc("/submit", handleSubmit)
+	// log.Fatal()
+	// http.HandleFunc("/submit", handleSubmit)
 	http.ListenAndServe(":8080", nil)
 }

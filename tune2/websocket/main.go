@@ -42,7 +42,6 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	defer conn.Close()
 
 	for {
@@ -60,6 +59,15 @@ func serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	///////////////////////////////////////////////////
+	// PROBLEMS:
+	// 1. What if there's multiple users using the html? it will send multiple keystrokes at many different client
+	// 2. Wouldn't it be troublesome to just get the input in the terminal
+	// TODO:
+	// 1. Improve the code handle multiple clients using websockets
+	// 2. Transfer all the keystrokes in txt file
+	////////////////////////////////////////////////////
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", handleHome).Methods("GET")
 	r.HandleFunc("/ws", handleWS).Methods("GET", "POST")

@@ -45,7 +45,7 @@ func NewServer(opts ...servOpts) *Server {
 	}
 }
 
-func main() {
+func main1() {
 
 	server := NewServer(updateInfo("asdfasdf"), isTCP)
 

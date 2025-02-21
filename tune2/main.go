@@ -2,11 +2,9 @@ package main
 
 import "fmt"
 
-
-func main(){
+func main() {
 	// fmt.Printf("%v", strings.Repeat("-",30))
-	var str  any
-
+	var str any
 
 	str = 1
 
@@ -18,5 +16,5 @@ func main(){
 	case bool:
 		fmt.Println("bool")
 	}
-	
+
 }

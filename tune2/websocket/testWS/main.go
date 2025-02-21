@@ -31,7 +31,7 @@ func main() {
 	go hub.Run()
 	fmt.Println("after run")
 
-	r.HandleFunc("/", serveHome).Methods("GET")z
+	r.HandleFunc("/", serveHome).Methods("GET")
 
 	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWS(hub, w, r)

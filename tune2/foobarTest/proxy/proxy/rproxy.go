@@ -29,7 +29,6 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Panic(err, "unable to parse err.")
 	}
-
 	r.Host = parsedHost.Host
 	r.URL.Host = parsedHost.Host
 	r.URL.Scheme = parsedHost.Scheme
@@ -40,7 +39,6 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err, "something wrong with defaultClient")
 	}
 	io.Copy(os.Stdout, res.Body)
-
 	fmt.Printf("reverse proxy %v", time.Now())
 }
 

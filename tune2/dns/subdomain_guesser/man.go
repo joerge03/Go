@@ -36,7 +36,7 @@ func init() {
 	}
 }
 
-func LookupA(d, addr string) ([]string, error) {
+func LookupA1(d, addr string) ([]string, error) {
 	var m dns.Msg
 	var ips []string
 
@@ -93,7 +93,7 @@ func lookup(fqdn, addr string) []Result {
 			cfqdn = cdn[0]
 			continue
 		}
-		ips, err := LookupA(cfqdn, addr)
+		ips, err := LookupA1(cfqdn, addr)
 		if err != nil {
 			break
 		}
@@ -111,19 +111,11 @@ func lookup(fqdn, addr string) []Result {
 var wg sync.WaitGroup
 
 func Worker(addr string, gather chan []Result, fqdn chan string, wg *sync.WaitGroup) {
-	// Ensure that the worker finishes its task
 	defer wg.Done()
-
-	// Worker cleanup
-	defer fmt.Println("worker done")
-
-	// Loop through each FQDN from the fqdn channel
 	for s := range fqdn {
-		// Perform the lookup (replace lookup function with your actual function)
+		fmt.Println("run!")
 		results := lookup(s, addr)
-		// fmt.Println(results)
 
-		// If results are not empty, send them to gather channel
 		if len(results) > 0 {
 			fmt.Println("done11111asdfasdfasdf")
 			gather <- results
@@ -131,7 +123,7 @@ func Worker(addr string, gather chan []Result, fqdn chan string, wg *sync.WaitGr
 	}
 }
 
-func main() {
+func main2() {
 
 	var results []Result
 
@@ -149,18 +141,21 @@ func main() {
 	}()
 
 	defer f.Close()
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 10; i++ {
 		wg.Add(1)
 		fmt.Println("+1")
 		go Worker(srvrAddr, gatherer, fqdns, &wg)
 	}
-
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		fqdns <- fmt.Sprintf("%s.%s", scanner.Text(), domain)
+		if !scanner.Scan() {
+			close(fqdns)
+		}
 	}
-	close(fqdns)
-	wg.Wait()
 
-	fmt.Printf("%+v\n", results)
+	wg.Wait()
+	close(gatherer)
+
+	fmt.Printf("results : %+v\n ", results)
 }

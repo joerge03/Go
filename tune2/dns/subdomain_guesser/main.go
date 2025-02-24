@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 	"sync"
-	"time"
+	"text/tabwriter"
 
 	"github.com/miekg/dns"
 )
@@ -53,16 +53,23 @@ func main() {
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	for range 15 {
+
+	for range cfg.Worker {
 		fmt.Println("+1")
 		wg.Add(1)
 		go worker2(fqdns, cfg.Server, gatherer, &wg, ctx)
 	}
 
 	// go resultsGatherer(&results, gatherer)
+	gwg := sync.WaitGroup{}
+	mut := &sync.Mutex{}
+	gwg.Add(1)
 	go func() {
+		gwg.Done()
 		for g := range gatherer {
+			mut.Lock()
 			results = append(results, g...)
+			mut.Unlock()
 		}
 	}()
 
@@ -74,17 +81,38 @@ func main() {
 	wg.Wait()
 	fmt.Println("test")
 	close(gatherer)
+	gwg.Wait()
 
-	fmt.Printf("%+v\n", results)
+	w := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
+
+	for _, r := range results {
+		fmt.Fprintf(w, "%s\t%s\n", r.Hostname, r.ServerAddress)
+	}
+
+	w.Flush()
 
 }
 
-func LookupC(fqdn, addr string, client *dns.Client) ([]string, error) {
-	res := new([]string)
+func LookupC(fqdn, addr string) ([]string, error) {
+	var res []string
 	msg := dns.Msg{}
 
+	// client := dns.Client{
+	// 	Net: "udp",
+	// }
+	// client := &dns.Client{
+	// 	Net: "udp", // Use "tcp" for TCP queries
+	// 	Dialer: &net.Dialer{
+	// 		Timeout: 5 * time.Second, // Set a timeout for the dialing operation
+	// 		// Optional: Specify a local address
+	// 		LocalAddr: &net.UDPAddr{
+	// 			IP:   net.ParseIP("192.168.1.10"), // Replace with your local IP address
+	// 			Port: 0,                           // Let the system choose an available port
+	// 		},
+	// 	},
+	// }
 	msg.SetQuestion(dns.Fqdn(fqdn), dns.TypeCNAME)
-	r, _, err := client.Exchange(&msg, addr)
+	r, err := dns.Exchange(&msg, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -95,19 +123,29 @@ func LookupC(fqdn, addr string, client *dns.Client) ([]string, error) {
 
 	for _, ans := range r.Answer {
 		if a, ok := ans.(*dns.CNAME); ok {
-			*res = append(*res, a.Target)
+			res = append(res, a.Target)
 		}
 	}
-
-	return *res, nil
+	return res, nil
 }
 
-func LookupA(fqdn, addr string, client *dns.Client) ([]string, error) {
-	res := new([]string)
+func LookupA(fqdn, addr string) ([]string, error) {
+	var res []string
 	msg := dns.Msg{}
+	// test := &dns.Client{
+	// 	Net: "udp", // Use "tcp" for TCP queries
+	// 	Dialer: &net.Dialer{
+	// 		Timeout: 5 * time.Second, // Set a timeout for the dialing operation
+	// 		// Optional: Specify a local address
+	// 		LocalAddr: &net.UDPAddr{
+	// 			IP:   net.ParseIP("192.168.1.10"), // Replace with your local IP address
+	// 			Port: 0,                           // Let the system choose an available port
+	// 		},
+	// 	},
+	// }
 
 	msg.SetQuestion(dns.Fqdn(fqdn), dns.TypeA)
-	r, _, err := client.Exchange(&msg, addr)
+	r, err := dns.Exchange(&msg, addr)
 
 	if err != nil {
 		return nil, err
@@ -119,62 +157,61 @@ func LookupA(fqdn, addr string, client *dns.Client) ([]string, error) {
 
 	for _, answer := range r.Answer {
 		if a, ok := answer.(*dns.A); ok {
-			fmt.Println(a.String())
-			*res = append(*res, a.String())
+			fmt.Println(a.String(), "a string")
+			res = append(res, a.String())
 		}
 	}
 
-	return *res, nil
+	return res, nil
 }
 
-func lookup2(fqdn, addr string, client *dns.Client) []Result3 {
-	res := new([]Result3)
+func lookup2(fqdn, addr string) []Result3 {
+	var res []Result3
 	fqdns := fqdn
 	fmt.Println("lookup2")
 
 	for {
-		cnames, err := LookupC(fqdns, addr, client)
+		cnames, err := LookupC(fqdns, addr)
 		if err == nil || len(cnames) >= 1 {
-			fqdn = cnames[0]
+			fqdns = cnames[0]
 			continue
 		}
-
-		a, err := LookupA(fqdns, addr, client)
+		a, err := LookupA(fqdns, addr)
 		if err != nil {
 			fmt.Printf("lookup err: %v", err)
 			break
 		}
 		for _, answers := range a {
-			*res = append(*res, Result3{ServerAddress: answers, Hostname: fqdn})
+			res = append(res, Result3{ServerAddress: answers, Hostname: fqdn})
 		}
 		break
 	}
-	// fmt.Printf("%+v\n", *res)
-	return *res
+	// fmt.Printf("%+v\n", res)
+	return res
 }
 
 func worker2(fqdns <-chan string, address string, gatherer chan<- []Result3, wg *sync.WaitGroup, ctx context.Context) {
 	defer wg.Done()
-	defer fmt.Println("done2")
-	client := &dns.Client{
-		Timeout: 30 * time.Second,
-	}
+	defer fmt.Println("worker done!")
+	// client := &dns.Client{Net: "tcp"}
+
 	fmt.Println("2")
 
 	for fqdn := range fqdns {
 		fmt.Println(fqdn)
 		select {
 		case <-ctx.Done():
+			fmt.Println("ctx <-done")
 			return
 		default:
-			results := lookup2(fqdn, address, client)
+			fmt.Println("worker run")
+			results := lookup2(fqdn, address)
 			gatherer <- results
 		}
 	}
 }
 
 func feedWorker(fqdns chan string, domain string, fileLoc string) error {
-	defer fmt.Println("done1")
 	defer close(fqdns)
 	f, err := os.Open(fileLoc)
 	if err != nil {
@@ -184,6 +221,7 @@ func feedWorker(fqdns chan string, domain string, fileLoc string) error {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
+		fmt.Println("scanner run!")
 		fqdns <- fmt.Sprintf("%v.%v", scanner.Text(), domain)
 	}
 

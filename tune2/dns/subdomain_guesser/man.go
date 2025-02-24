@@ -141,7 +141,7 @@ func main2() {
 	}()
 
 	defer f.Close()
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 15; i++ {
 		wg.Add(1)
 		fmt.Println("+1")
 		go Worker(srvrAddr, gatherer, fqdns, &wg)
@@ -149,11 +149,10 @@ func main2() {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		fqdns <- fmt.Sprintf("%s.%s", scanner.Text(), domain)
-		if !scanner.Scan() {
-			close(fqdns)
-		}
+
 	}
 
+	close(fqdns)
 	wg.Wait()
 	close(gatherer)
 

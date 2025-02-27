@@ -8,6 +8,9 @@ require (
 )
 
 require (
+	github.com/geoffgarside/ber v1.1.0 // indirect
+	github.com/hirochachacha/go-smb2 v1.1.0 // indirect
+	github.com/stacktitan/smb v0.0.0-20190531122847-da9a425dceb8 // indirect
 	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect

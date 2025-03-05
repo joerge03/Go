@@ -17,9 +17,8 @@ type Transactions struct {
 }
 
 func main() {
-	dsn := "root:admin@tcp(127.0.0.1:3306)/store?charset=utf8mb4&parseTime=True&"
+	dsn := "root:admin@tcp(127.0.0.1:3306)"
 	db, err := gorm.Open(mysql.Open(dsn))
-
 	if err != nil {
 		log.Panic(err, "Failed to open db")
 	}

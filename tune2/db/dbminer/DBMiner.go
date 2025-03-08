@@ -39,7 +39,6 @@ func Search(dbMiner DBMiner) error {
 			}
 		}
 	}
-
 	return nil
 }
 

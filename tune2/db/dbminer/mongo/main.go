@@ -94,7 +94,6 @@ func (m *MongoMiner) GetSchema() (*dbminer.Schema, error) {
 	for _, database := range names.Databases {
 		db := dbminer.Database{Name: database.Name, Tables: []dbminer.Table{}}
 		dbNames, err := m.Client.Database(database.Name).ListCollectionNames(m.ctx, bson.M{})
-
 		if err != nil {
 			log.Panic(err, "cannot get collection names")
 		}

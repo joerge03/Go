@@ -78,7 +78,6 @@ func (sqlMiner *SQLMiner) GetSchema() (*dbminer.Schema, error) {
 			// 	sqlCols.Scan(&colRaw)
 			// 	tables.Columns = append(tables.Columns, string(colRaw))
 			// }
-
 			cols, err := sqlCols.Columns()
 			if err != nil {
 				log.Panic(err)
@@ -129,8 +128,8 @@ func main() {
 		log.Panic(err)
 	}
 	defer client.Close()
-	sqlMiner := SQLMiner{dsn, client}
 
+	sqlMiner := SQLMiner{dsn, client}
 	dbminer.Search(&sqlMiner)
 
 	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/store", dbInfo.User, dbInfo.Pass, dbInfo.Host, dbInfo.Port)

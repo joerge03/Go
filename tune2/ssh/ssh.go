@@ -13,32 +13,29 @@ import (
 
 var wg sync.WaitGroup
 
-func scan(addr string , openPorts *[]string)  {
-		defer wg.Done()
-			
-		if addr == "error"{
-			return
-		}
-		conn, err := net.Dial("tcp",addr)
-		if err != nil {
-			fmt.Printf("scanned but failed:%v\n", addr)
-			return
-		}
-		conn.Close()
-		*openPorts = append(*openPorts,  addr)
-	
-		
+func scan(addr string, openPorts *[]string) {
+	defer wg.Done()
+
+	if addr == "error" {
+		return
+	}
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		fmt.Printf("scanned but failed:%v\n", addr)
+		return
+	}
+	defer conn.Close()
+	*openPorts = append(*openPorts, addr)
+
 }
 
-func main(){
+func main() {
 
 	file, err := os.Open("../generateFile/localhost.txt")
 
 	if err != nil {
 		log.Panic(err)
 	}
-
-	
 
 	defer file.Close()
 
@@ -51,63 +48,56 @@ func main(){
 		c <- scanner.Text()
 		test := <-c
 
-		strings = append(strings,test)
+		strings = append(strings, test)
 	}
 
-	
 	sort.Slice(strings, func(i, j int) bool {
-		_,portI,err := net.SplitHostPort(strings[i])
+		_, portI, err := net.SplitHostPort(strings[i])
 		if err != nil {
 			return false
 		}
 
-		_, portJ, err:= net.SplitHostPort(strings[j])
+		_, portJ, err := net.SplitHostPort(strings[j])
 		if err != nil {
 			return false
 		}
 
-		port1,_ := strconv.Atoi(portI)
-		port2,_ := strconv.Atoi(portJ)
+		port1, _ := strconv.Atoi(portI)
+		port2, _ := strconv.Atoi(portJ)
 		if port1 <= port2 {
 			return true
-		}else {
+		} else {
 			return false
 		}
 	})
-		// fmt.Printf("%v", strings)
-		close(c)
-		
-		for _,addr := range strings {
-			wg.Add(1)
-			go scan(addr, &openPorts)
-		}
-		wg.Wait()
-		
-		fmt.Println("done")
-		fmt.Printf("%v ", openPorts)
-		
-		
-		
-	
+	// fmt.Printf("%v", strings)
+	close(c)
+
+	for _, addr := range strings {
+		wg.Add(1)
+		go scan(addr, &openPorts)
+	}
+	wg.Wait()
+
+	fmt.Println("done")
+	fmt.Printf("%v ", openPorts)
+
 	// }(scanner,c)
 
 	// wg.Add(1)
 
 	// go func(ch <- chan string ){
-		// for {
-		// 	fmt.Println("test")
-		// 	test := <-c
-		// 	if test == "error" {
-		// 		break
-		// 	}
+	// for {
+	// 	fmt.Println("test")
+	// 	test := <-c
+	// 	if test == "error" {
+	// 		break
+	// 	}
 
-			
-		// }
-		// defer wg.Done()
+	// }
+	// defer wg.Done()
 	// }(c)
 	// defer close(c)
 
-
-	
 	// wg.Wait()
 }

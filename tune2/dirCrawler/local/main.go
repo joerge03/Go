@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 )
 
 var regexed = []*regexp.Regexp{
@@ -18,10 +19,17 @@ var regexed = []*regexp.Regexp{
 	regexp.MustCompile(`(?i)key`),
 }
 
-func walkF(path string, f os.DirEntry, err error) error {
+func walkF(path string, f os.DirEntry, errx error) error {
+
+	info, err := f.Info()
+	if err != nil {
+		return err
+	}
+	threeDaysAgo := time.Now().Add(-3 * 24 * time.Hour)
+
 	for _, r := range regexed {
-		if r.MatchString(path) {
-			fmt.Printf("[HIT] : %v\n", path)
+		if r.MatchString(f.Name()) && info.ModTime().After(threeDaysAgo) {
+			fmt.Printf("[HIT] time: %v: %v \n", time.Now().Sub(info.ModTime()), path)
 		}
 	}
 	return nil

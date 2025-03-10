@@ -43,7 +43,6 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", handleHome)

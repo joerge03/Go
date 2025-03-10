@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	github.com/google/gopacket v1.1.19 // indirect
 	github.com/miekg/dns v1.1.63 // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/mod v0.18.0 // indirect

@@ -30,16 +30,16 @@ func Search(dbMiner DBMiner) error {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	for _, s := range schema.Databases {
+		fmt.Printf("[DATABASE] : %s \n", s.Name)
 		for _, t := range s.Tables {
+			fmt.Printf("[TABLE] : %s\n", t.Name)
 			for _, c := range t.Columns {
 				getRegex(c)
 				// fmt.Println(c)
 			}
 		}
 	}
-
 	return nil
 }
 

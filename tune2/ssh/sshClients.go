@@ -21,8 +21,8 @@ var PubKey ssh.PublicKey
 func init() {
 	flag.StringVar(&ip, "ip", "linuxzoo.net", "ip")
 	flag.StringVar(&port, "port", "22", "port")
-	flag.StringVar(&username, "username", "", "username")
-	flag.StringVar(&password, "password", "", "password")
+	flag.StringVar(&username1, "username", "", "username")
+	flag.StringVar(&password1, "password", "", "password")
 	flag.StringVar(&cmd, "cmd", "", "cmd")
 }
 
@@ -104,7 +104,7 @@ func main1() {
 	// reader, writer, _ := os.Pipe()
 
 	//  os.Stdout
-	// oldStd := 
+	// oldStd :=
 
 	session.Stdout = os.Stdout
 

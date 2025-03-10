@@ -48,9 +48,9 @@ var (
 	in, out, address string
 	logSSH           log.Logger
 	targets          strList
-	sshWG 			sync.WaitGroup
-	password 			string
-	username 			string
+	sshWG            sync.WaitGroup
+	password         string
+	username         string
 )
 
 func errorExit(s string, err error) {
@@ -108,12 +108,12 @@ func newSSHServer(address string) (*SSHServer, error) {
 	return server, nil
 }
 
-func ToJSON(s any, pretty bool )(string, error){
-	 jsonString :=  new([]byte)
-	 var err error
+func ToJSON(s any, pretty bool) (string, error) {
+	jsonString := new([]byte)
+	var err error
 	if pretty {
 		*jsonString, err = json.MarshalIndent(s, "", "\t")
-		if err!= nil{
+		if err != nil {
 			return "", err
 		}
 		return string(*jsonString), nil
@@ -128,34 +128,34 @@ func ToJSON(s any, pretty bool )(string, error){
 
 type SSHServers []*SSHServer
 
-func (servers *SSHServers) String() string{
+func (servers *SSHServers) String() string {
 	serverString := new(string)
 	var err error
 	*serverString, err = ToJSON(*servers, true)
-	if err != nil{		
+	if err != nil {
 		for _, server := range *servers {
 			fmt.Println("updateing servers")
-			*serverString += fmt.Sprintf("%+v\n%s\n", server, strings.Repeat("-",30))
+			*serverString += fmt.Sprintf("%+v\n%s\n", server, strings.Repeat("-", 30))
 		}
 	}
-	return *serverString	
+	return *serverString
 }
 
-type IsHostAuthorityCallback func(auth ssh.PublicKey, addr string) bool 
+type IsHostAuthorityCallback func(auth ssh.PublicKey, addr string) bool
 
-func IsHostAuthority() IsHostAuthorityCallback{
-	
-	return func (auth ssh.PublicKey, addr string) bool {		
-			// s.Address = addr
-			// s.PublicKey = auth 
+func IsHostAuthority() IsHostAuthorityCallback {
+
+	return func(auth ssh.PublicKey, addr string) bool {
+		// s.Address = addr
+		// s.PublicKey = auth
 		return true
 	}
 }
 
-type IsRevokedCallback func(cert *ssh.Certificate) bool 
+type IsRevokedCallback func(cert *ssh.Certificate) bool
 
-func IsRevokedFunc(s *SSHServer)IsRevokedCallback{
-	return func(cert *ssh.Certificate) bool{
+func IsRevokedFunc(s *SSHServer) IsRevokedCallback {
+	return func(cert *ssh.Certificate) bool {
 		(*s).Cert = *cert
 		(*s).IsSSH = true
 		return true
@@ -164,34 +164,32 @@ func IsRevokedFunc(s *SSHServer)IsRevokedCallback{
 
 type IsUserAuthorityCallback func(p ssh.PublicKey) bool
 
-func IsUserAuthority(s *SSHServer) IsUserAuthorityCallback{
+func IsUserAuthority(s *SSHServer) IsUserAuthorityCallback {
 	return func(p ssh.PublicKey) bool {
 		return true
 	}
 }
 
-// type HostKeyCallbackType func(hostName string, remote net.Addr, key ssh.PublicKey) error 
-
+// type HostKeyCallbackType func(hostName string, remote net.Addr, key ssh.PublicKey) error
 
 func HostKeyCallback(s *SSHServer) ssh.HostKeyCallback {
-	return func(hostName string, remote net.Addr, key ssh.PublicKey) error{
+	return func(hostName string, remote net.Addr, key ssh.PublicKey) error {
 
 		host, port, _ := net.SplitHostPort(remote.String())
-		portInt,_  := strconv.Atoi(port)
-		
+		portInt, _ := strconv.Atoi(port)
+
 		(*s).Address = remote.String()
 		(*s).Host = host
 		(*s).Port = portInt
 		(*s).PublicKey = key
-		
+
 		return nil
 	}
-} 
+}
 
-// type BannerCallBackType func(message string) error 
+// type BannerCallBackType func(message string) error
 
-
-func BannerCallBack(s *SSHServer) ssh.BannerCallback{
+func BannerCallBack(s *SSHServer) ssh.BannerCallback {
 	return func(message string) error {
 		fmt.Println(message)
 		s.Banner = message
@@ -199,8 +197,7 @@ func BannerCallBack(s *SSHServer) ssh.BannerCallback{
 	}
 }
 
-
-func readFile(fileLoc string)([]string, error) {
+func readFile(fileLoc string) ([]string, error) {
 
 	add := new([]string)
 
@@ -216,36 +213,35 @@ func readFile(fileLoc string)([]string, error) {
 		*add = append(*add, fileScanner.Text())
 	}
 	return *add, nil
-	
+
 }
 
-
-func (s *SSHServer) discover(){
+func (s *SSHServer) discover() {
 	defer sshWG.Done()
 
 	certC := &ssh.CertChecker{
 		IsHostAuthority: IsHostAuthority(),
 		IsUserAuthority: IsUserAuthority(s),
-		IsRevoked: IsRevokedFunc(s),
+		IsRevoked:       IsRevokedFunc(s),
 	}
-	
+
 	sshC := &ssh.ClientConfig{
 		User: username,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(password),
 		},
 		HostKeyCallback: certC.CheckHostKey,
-		BannerCallback: BannerCallBack(s),
-		Timeout: time.Duration(time.Second *5),
+		BannerCallback:  BannerCallBack(s),
+		Timeout:         time.Duration(time.Second * 5),
 	}
 
-	c ,err := ssh.Dial("tcp",s.Address,sshC)
+	c, err := ssh.Dial("tcp", s.Address, sshC)
 
 	if err != nil {
 		logSSH.Println("error ", err)
 		return
 	}
-	c.Close()	
+	c.Close()
 }
 
 func main3() {
@@ -255,9 +251,9 @@ func main3() {
 	// }
 
 	allTargets := new([]string)
-	servers :=  new(SSHServers)
-	var err error 
-	if in != ""{
+	servers := new(SSHServers)
+	var err error
+	if in != "" {
 		*allTargets, err = readFile(in)
 		if err != nil {
 			errorExit("test1", err)
@@ -265,35 +261,34 @@ func main3() {
 	}
 
 	if len(targets) != 0 {
-		*allTargets = append(*allTargets, targets...)		
+		*allTargets = append(*allTargets, targets...)
 	}
 
-	for _,allT :=  range *allTargets {
-		server, err:= newSSHServer(allT)
+	for _, allT := range *allTargets {
+		server, err := newSSHServer(allT)
 		if err != nil {
 			errorExit("test", err)
 		}
-		*servers = append(*servers, server)		
+		*servers = append(*servers, server)
 	}
 
 	if err != nil {
 		errorExit("there's something wrong with the server", err)
 	}
 
-	for _ , server := range *servers {
+	for _, server := range *servers {
 		sshWG.Add(1)
 		fmt.Println(server)
 		go server.discover()
 	}
 
-	
 	sshWG.Wait()
 	fmt.Printf("servers %+v", servers)
 
 	fmt.Println("123", username, password)
-	
+
 	if out != "" {
-		file, err := os.OpenFile(out,os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err := os.OpenFile(out, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 		if err != nil {
 			log.Panicf("can't open file, %v", err)
@@ -301,9 +296,9 @@ func main3() {
 		defer file.Close()
 		// writer := bufio.NewWriter(file)
 		formattedServers := servers.String()
-		
-		_,err = file.WriteString(formattedServers)
+
+		_, err = file.WriteString(formattedServers)
 
 		fmt.Printf("err write %v\n", err)
-	}	
+	}
 }

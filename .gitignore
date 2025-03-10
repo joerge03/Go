@@ -11,3 +11,4 @@ Udemy - Go Programming (Golang) The Complete Developer's Guide
 .gitignore
 *.env
 .env
+.aider*

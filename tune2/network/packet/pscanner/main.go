@@ -32,21 +32,24 @@ func capture(iface, target string) {
 		log.Panic(err)
 	}
 	ps := gopacket.NewPacketSource(handler, handler.LinkType())
+
 	for packet := range ps.Packets() {
 		networkLayer := packet.NetworkLayer()
 		if networkLayer == nil {
+			fmt.Println("no network layer")
 			continue
 		}
 
 		transportLayer := packet.TransportLayer()
 		if transportLayer == nil {
-			log.Panic(err)
+			fmt.Println("no transport layer")
+			continue
 		}
 
 		srcHost := networkLayer.NetworkFlow().Src().String()
 		srcPort := transportLayer.TransportFlow().Src().String()
-		fmt.Printf("src HOST %v, src PORT %v \n", srcHost, srcPort)
 		if srcHost != target {
+			// fmt.Println("srchost does not match target")
 			continue
 		}
 
@@ -56,7 +59,7 @@ func capture(iface, target string) {
 }
 
 func main() {
-	if len(os.Args) != 5 {
+	if len(os.Args) != 4 {
 		log.Fatal("need more args")
 	}
 
@@ -81,20 +84,22 @@ func main() {
 
 	ports := explode(os.Args[3])
 
+	// can be improved and use concurrency
 	for _, port := range ports {
 		target := fmt.Sprintf("%v:%v", ip, port)
-		fmt.Printf("Trying... %v\n", target)
+		fmt.Printf("Trying... %v with a port of %v\n", target, port)
 
 		c, err := net.DialTimeout("tcp", target, 1*time.Second)
 		if err != nil {
+			fmt.Printf("err: %v\n", err)
 			continue
 		}
 		defer c.Close()
 	}
-	time.Sleep(2 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	for port, confidence := range results {
-		fmt.Printf("PORT [%v] --- confidence [%v]", port, confidence)
+		fmt.Printf(" PORT [%v] --- confidence [%v] \n", port, confidence)
 	}
 }
 

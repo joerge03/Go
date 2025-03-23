@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-var payloads = []string{
-	"baseline",
-	"(",
-	")",
-	"/",
-	"'",
-}
+// var payloads = []string{
+// 	"baseline",
+// 	"(",
+// 	")",
+// 	"/",
+// 	"'",
+// }
 
 var timePayloads = []struct {
 	payload       string
@@ -57,7 +57,7 @@ func sendRequest(client *http.Client, baseURL, payload string) (string, time.Dur
 	return string(resBody), duration, nil
 }
 
-func main() {
+func main2() {
 	baseURL := "http://172.16.21.129/mutillidae/index.php?page=user-info.php"
 	client := &http.Client{}
 

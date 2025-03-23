@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
+	"bytes"
 	"fmt"
 	"log"
 
@@ -14,7 +14,7 @@ var (
 	snaplen  = int32(1600)
 	promisc  = false
 	timeout  = pcap.BlockForever
-	filter   = "tcp and port 80"
+	filter   = "tcp and dst port 21"
 	devFound = false
 )
 
@@ -47,11 +47,17 @@ func main() {
 	source := gopacket.NewPacketSource(handle, handle.LinkType())
 	fmt.Println("running!")
 	for packet := range source.Packets() {
-		fmt.Println("running!")
+		layers := packet.ApplicationLayer()
 
-		fmt.Printf("DATA: %+s\n PACKET: %+s\n", hex.Dump(packet.Data()), packet)
-		// fmt.Printf("DATA: %+s\n PACKET: %+s\n", packet.)
+		if layers == nil {
+			continue
+		}
 
+		payload := layers.Payload()
+
+		if bytes.Contains(payload, []byte("USER")) || bytes.Contains(payload, []byte("PASS")) {
+			fmt.Println(string(payload))
+		}
 	}
 
 	// var (

@@ -6,17 +6,19 @@ import (
 	"time"
 )
 
-func sampleOperation(ctx context.Context, str string, delay time.Duration) <-chan string {
+func sampleOperation(ctx context.Context, str string, delay time.Duration, done chan<- string) <-chan string {
 	out := make(chan string)
 
 	// wg.Add(1)
 	go func() {
+		// defer close(out)
 		for {
 			select {
 			case <-time.After(delay * time.Millisecond):
 				out <- fmt.Sprintf("message: %v", str)
 			case <-ctx.Done():
 				out <- fmt.Sprintf("aborted %v", str)
+				done <- "done"
 				return
 			}
 		}
@@ -25,21 +27,23 @@ func sampleOperation(ctx context.Context, str string, delay time.Duration) <-cha
 }
 
 func main() {
+	done := make(chan string)
 	ctx, cancel := context.WithCancel(context.Background())
 
-	webServer := sampleOperation(ctx, "webServer", 500)
+	webServer := sampleOperation(ctx, "webServer", 500, done)
 
-	microServices := sampleOperation(ctx, "microServices", 500)
-	database := sampleOperation(ctx, "database", 500)
+	microServices := sampleOperation(ctx, "microServices", 500, done)
+	database := sampleOperation(ctx, "database", 500, done)
 
 	go func() {
 		fmt.Println("go func cancel")
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		cancel()
 	}()
 
-	// Mainloop:
+Mainloop:
 	for {
+		// fmt.Println(<-webServer, <-microServices, <-database)
 		select {
 		case sdf := <-webServer:
 			fmt.Println(sdf)
@@ -47,9 +51,11 @@ func main() {
 			fmt.Println(test)
 		case test := <-database:
 			fmt.Println(test)
-			// fmt.Println("asdf")
-			// case test := <-database:
-			// 	fmt.Println(test)
+		case <-ctx.Done():
+			// fmt.Println("done")
+			// if d == "done" {
+			break Mainloop
+			// }
 		}
 	}
 

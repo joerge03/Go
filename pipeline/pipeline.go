@@ -111,8 +111,6 @@ func fanIn[T any](channels ...<-chan T) chan T {
 func main1() {
 	quit := make(chan struct{})
 
-	// var quitVar struct{}
-
 	base64 := work(img, img2)
 	// go func() {
 	// 	fmt.Println(<-quit)

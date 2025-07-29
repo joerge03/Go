@@ -71,6 +71,7 @@ func main2() {
 	if err != nil {
 		log.Panic("Baseline request error: ", err)
 	}
+
 	fmt.Printf("Baseline response time: %v\n", baselineDuration)
 	for _, reg := range errRegex {
 		if reg.MatchString(baselineBody) {
